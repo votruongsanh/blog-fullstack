@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import type { LoginRequest } from "@/interface/userInterface";
+import { loginSchema } from "@/schemas/authSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Alert,
@@ -14,16 +15,6 @@ import {
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import * as yup from "yup";
-
-// Validation schema
-const loginSchema = yup.object().shape({
-  email: yup.string().required("Email là bắt buộc").email("Email không hợp lệ"),
-  password: yup
-    .string()
-    .required("Mật khẩu là bắt buộc")
-    .min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
-});
 
 const Login = () => {
   const navigate = useNavigate();

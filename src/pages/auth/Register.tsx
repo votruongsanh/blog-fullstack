@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import type { RegisterRequest } from "@/interface/userInterface";
+import { registerSchema } from "@/schemas/authSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Alert,
@@ -14,24 +15,6 @@ import {
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import * as yup from "yup";
-
-// Validation schema
-const registerSchema = yup.object().shape({
-  name: yup
-    .string()
-    .required("Tên là bắt buộc")
-    .min(2, "Tên phải có ít nhất 2 ký tự"),
-  email: yup.string().required("Email là bắt buộc").email("Email không hợp lệ"),
-  password: yup
-    .string()
-    .required("Mật khẩu là bắt buộc")
-    .min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
-  confirmPassword: yup
-    .string()
-    .required("Xác nhận mật khẩu là bắt buộc")
-    .oneOf([yup.ref("password")], "Mật khẩu xác nhận không khớp"),
-});
 
 const Register = () => {
   const navigate = useNavigate();
@@ -61,10 +44,10 @@ const Register = () => {
       if (err && typeof err === "object" && "response" in err) {
         const error = err as { response?: { data?: { message?: string } } };
         setError(
-          error.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại."
+          error.response?.data?.message || "Register failed. Please try again."
         );
       } else {
-        setError("Đăng ký thất bại. Vui lòng thử lại.");
+        setError("Register failed. Please try again.");
       }
     }
   };
@@ -90,7 +73,7 @@ const Register = () => {
           }}
         >
           <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-            Đăng Ký
+            Register
           </Typography>
 
           {error && (
@@ -108,7 +91,7 @@ const Register = () => {
               margin="normal"
               fullWidth
               id="name"
-              label="Tên"
+              label="Name"
               autoComplete="name"
               autoFocus
               {...register("name")}
@@ -130,7 +113,7 @@ const Register = () => {
             <TextField
               margin="normal"
               fullWidth
-              label="Mật khẩu"
+              label="Password"
               type="password"
               id="password"
               autoComplete="new-password"
@@ -142,7 +125,7 @@ const Register = () => {
             <TextField
               margin="normal"
               fullWidth
-              label="Xác nhận mật khẩu"
+              label="Confirm Password"
               type="password"
               id="confirmPassword"
               autoComplete="new-password"
@@ -158,12 +141,12 @@ const Register = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Đang đăng ký..." : "Đăng Ký"}
+              {isSubmitting ? "Registering..." : "Register"}
             </Button>
 
             <Box sx={{ textAlign: "center" }}>
               <Link component={RouterLink} to="/login" variant="body2">
-                Đã có tài khoản? Đăng nhập ngay
+                Already have an account? Login now
               </Link>
             </Box>
           </Box>
