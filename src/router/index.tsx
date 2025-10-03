@@ -36,11 +36,6 @@ export const routes: RouteObject[] = [
       },
       {
         path: "posts",
-        element: (
-          <ProtectedRoute>
-            <div />
-          </ProtectedRoute>
-        ),
         children: [
           {
             index: true,

@@ -4,9 +4,17 @@ import Navbar from "./Navbar";
 
 const RootLayout = () => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
+      }}
+    >
       <Navbar />
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      <Box component="main">
         <Outlet />
       </Box>
     </Box>

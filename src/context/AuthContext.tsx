@@ -40,9 +40,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (token && userData) {
       try {
-        // Check if token is expired
         if (isTokenExpired(token)) {
-          // Token expired, clear auth data
           localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem(USER_KEY);
           setUser(null);

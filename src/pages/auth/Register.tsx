@@ -60,17 +60,9 @@ const Register = () => {
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const error = err as { response?: { data?: { message?: string } } };
-        if (
-          error.response?.data?.message?.includes("duplicate") ||
-          error.response?.data?.message?.includes("already exists")
-        ) {
-          setError("Email đã được sử dụng. Vui lòng sử dụng email khác.");
-        } else {
-          setError(
-            error.response?.data?.message ||
-              "Đăng ký thất bại. Vui lòng thử lại."
-          );
-        }
+        setError(
+          error.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại."
+        );
       } else {
         setError("Đăng ký thất bại. Vui lòng thử lại.");
       }
