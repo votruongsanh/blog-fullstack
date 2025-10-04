@@ -37,7 +37,10 @@ export default function PostsList() {
     queryFn: () => postService.getPosts(page, 10),
   });
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -55,7 +58,7 @@ export default function PostsList() {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="error">
-          Không thể tải danh sách bài viết. Vui lòng thử lại sau.
+          Can't load posts list. Please try again later.
         </Alert>
       </Container>
     );
@@ -63,7 +66,6 @@ export default function PostsList() {
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
-      {/* Header Section */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         alignItems={{ xs: "stretch", sm: "center" }}
@@ -78,13 +80,13 @@ export default function PostsList() {
             color="primary"
             gutterBottom
           >
-            📝 Bảng Tin
+            📝 Posts
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {isLoading ? (
               <Skeleton width={200} />
             ) : (
-              `Tổng cộng ${data?.total || 0} bài viết`
+              `Total ${data?.total || 0} posts`
             )}
           </Typography>
         </Box>
@@ -109,7 +111,7 @@ export default function PostsList() {
               transition: "all 0.3s ease",
             }}
           >
-            Tạo Bài Viết Mới
+            Create Post
           </Button>
         )}
       </Stack>
@@ -180,14 +182,15 @@ export default function PostsList() {
 
                   {/* Meta Information */}
                   <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={{ xs: 1, sm: 2 }}
+                    alignItems="center"
+                    direction="row"
+                    spacing={2}
                     flexWrap="wrap"
                     sx={{ mt: 2 }}
                   >
                     <Chip
                       icon={<PersonIcon />}
-                      label={post.authorName}
+                      label={post.author.name}
                       size="small"
                       variant="outlined"
                       color="primary"
@@ -236,7 +239,7 @@ export default function PostsList() {
                         px: 3,
                       }}
                     >
-                      Xem Chi Tiết
+                      View Detail
                     </Button>
                   )}
                 </CardActions>
@@ -282,10 +285,10 @@ export default function PostsList() {
           }}
         >
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            📭 Chưa có bài viết nào
+            📭 No posts found
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Hãy là người đầu tiên tạo bài viết!
+            Be the first to create a post!
           </Typography>
           {isAuth && (
             <Button
@@ -293,7 +296,7 @@ export default function PostsList() {
               startIcon={<AddIcon />}
               onClick={() => navigate("/posts/create")}
             >
-              Tạo Bài Viết Đầu Tiên
+              Create First Post
             </Button>
           )}
         </Card>

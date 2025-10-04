@@ -1,35 +1,36 @@
-import * as React from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { postService } from "@/services/postService";
+import { isAuthenticated } from "@/utils/authUtils";
+import { formatDate } from "@/utils/format";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import PersonIcon from "@mui/icons-material/Person";
+import UpdateIcon from "@mui/icons-material/Update";
 import {
+  Alert,
   Box,
+  Button,
   Card,
   CardContent,
-  Typography,
-  Button,
-  Stack,
   Chip,
-  Alert,
   Container,
-  useTheme,
-  useMediaQuery,
-  Skeleton,
-  Divider,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  DialogActions,
+  DialogTitle,
+  Divider,
+  Skeleton,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import PersonIcon from "@mui/icons-material/Person";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import UpdateIcon from "@mui/icons-material/Update";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { postService } from "@/services/postService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as React from "react";
 import { useNavigate, useParams } from "react-router";
-import { isAuthenticated } from "@/utils/authUtils";
-import { USER_KEY } from "@/config/api";
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>();
@@ -41,12 +42,13 @@ export default function PostDetail() {
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
   // Get current user
-  const currentUser = React.useMemo(() => {
-    const userData = localStorage.getItem(USER_KEY);
-    return userData ? JSON.parse(userData) : null;
-  }, []);
+  const { user } = useAuth();
 
-  const { data: post, isLoading, error } = useQuery({
+  const {
+    data: post,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["post", id],
     queryFn: () => postService.getPost(id!),
     enabled: !!id,
@@ -65,31 +67,31 @@ export default function PostDetail() {
     setOpenDeleteDialog(false);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  };
+  //   const formatDate = (dateString: string) => {
+  //     const date = new Date(dateString);
+  //     return new Intl.DateTimeFormat("vi-VN", {
+  //       year: "numeric",
+  //       month: "long",
+  //       day: "numeric",
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //     }).format(date);
+  //   };
 
-  const isOwner = currentUser && post && currentUser.id === post.authorId;
+  const isOwner = user && post && user.id === post.authorId;
 
   if (error) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
-          Không thể tải bài viết. Vui lòng thử lại sau.
+          The article could not be loaded. Please try again later.
         </Alert>
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate("/posts")}
         >
-          Quay Lại Danh Sách
+          Back to List
         </Button>
       </Container>
     );
@@ -116,14 +118,14 @@ export default function PostDetail() {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="warning" sx={{ mb: 2 }}>
-          Không tìm thấy bài viết.
+          The article could not be found.
         </Alert>
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate("/posts")}
         >
-          Quay Lại Danh Sách
+          Back to List
         </Button>
       </Container>
     );
@@ -142,7 +144,7 @@ export default function PostDetail() {
           borderRadius: 2,
         }}
       >
-        Quay Lại Danh Sách
+        Back to List
       </Button>
 
       {/* Post Content Card */}
@@ -171,32 +173,43 @@ export default function PostDetail() {
           {/* Meta Information */}
           <Stack
             direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 1, sm: 2 }}
+            spacing={1}
             flexWrap="wrap"
-            sx={{ mb: 2 }}
           >
             <Chip
               icon={<PersonIcon />}
-              label={`Tác giả: ${post.authorName}`}
+              label={`${post.author.name}`}
               size={isMobile ? "small" : "medium"}
               variant="filled"
               color="primary"
-              sx={{ fontWeight: 600 }}
+              sx={{
+                fontWeight: 600,
+                width: { xs: "fit-content", sm: "auto" },
+                alignSelf: "flex-start",
+              }}
             />
             <Chip
               icon={<CalendarTodayIcon />}
-              label={`Đăng: ${formatDate(post.createdAt)}`}
+              label={`Created: ${formatDate(post.createdAt)}`}
               size={isMobile ? "small" : "medium"}
               variant="outlined"
               color="default"
+              sx={{
+                width: { xs: "fit-content", sm: "auto" },
+                alignSelf: "flex-start",
+              }}
             />
             {post.updatedAt !== post.createdAt && (
               <Chip
                 icon={<UpdateIcon />}
-                label={`Cập nhật: ${formatDate(post.updatedAt)}`}
+                label={`Updated: ${formatDate(post.updatedAt)}`}
                 size={isMobile ? "small" : "medium"}
                 variant="outlined"
                 color="info"
+                sx={{
+                  width: { xs: "fit-content", sm: "auto" },
+                  alignSelf: "flex-start",
+                }}
               />
             )}
           </Stack>
@@ -227,11 +240,7 @@ export default function PostDetail() {
               borderColor: "divider",
             }}
           >
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              justifyContent="flex-end"
-            >
+            <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button
                 variant="contained"
                 color="primary"
@@ -245,7 +254,7 @@ export default function PostDetail() {
                   fontWeight: 600,
                 }}
               >
-                Chỉnh Sửa
+                Edit
               </Button>
               <Button
                 variant="outlined"
@@ -260,7 +269,7 @@ export default function PostDetail() {
                   fontWeight: 600,
                 }}
               >
-                Xóa Bài Viết
+                Delete
               </Button>
             </Stack>
           </Box>
@@ -275,11 +284,12 @@ export default function PostDetail() {
         fullWidth
       >
         <DialogTitle sx={{ fontWeight: "bold" }}>
-          Xác Nhận Xóa Bài Viết
+          Delete Confirmation
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.
+            Are you sure you want to delete this article? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
@@ -288,7 +298,7 @@ export default function PostDetail() {
             variant="outlined"
             sx={{ textTransform: "none" }}
           >
-            Hủy
+            Cancel
           </Button>
           <Button
             onClick={handleDelete}
@@ -297,7 +307,7 @@ export default function PostDetail() {
             disabled={deleteMutation.isPending}
             sx={{ textTransform: "none" }}
           >
-            {deleteMutation.isPending ? "Đang xóa..." : "Xóa"}
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,11 +1,16 @@
+export interface Author {
+  id: string;
+  name: string;
+  email: string;
+}
 export interface Post {
   id: string;
   title: string;
   content: string;
   authorId: string;
-  authorName: string;
   createdAt: string;
   updatedAt: string;
+  author: Author;
 }
 
 export interface PostsResponse {

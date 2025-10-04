@@ -24,14 +24,14 @@ import type { PostRequest } from "@/interface/postsInterface";
 const schema = yup.object({
   title: yup
     .string()
-    .required("Tiêu đề là bắt buộc")
-    .min(5, "Tiêu đề phải có ít nhất 5 ký tự")
-    .max(200, "Tiêu đề không được vượt quá 200 ký tự"),
+    .required("Title is required")
+    .min(5, "Title must be at least 5 characters long")
+    .max(200, "Title cannot exceed 200 characters"),
   content: yup
     .string()
-    .required("Nội dung là bắt buộc")
-    .min(20, "Nội dung phải có ít nhất 20 ký tự")
-    .max(10000, "Nội dung không được vượt quá 10000 ký tự"),
+    .required("Content is required")
+    .min(20, "Content must be at least 20 characters long")
+    .max(10000, "Content cannot exceed 10000 characters"),
 });
 
 export default function CreatePost() {
@@ -79,7 +79,7 @@ export default function CreatePost() {
           fontWeight="bold"
           color="primary"
         >
-          ✍️ Tạo Bài Viết Mới
+          ✍️ Create New Post
         </Typography>
         <Button
           variant="outlined"
@@ -90,14 +90,14 @@ export default function CreatePost() {
             borderRadius: 2,
           }}
         >
-          Quay Lại
+          Back
         </Button>
       </Stack>
 
       {/* Error Alert */}
       {createMutation.isError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          Không thể tạo bài viết. Vui lòng thử lại sau.
+          Can't create the post. Please try again later.
         </Alert>
       )}
 
@@ -118,8 +118,8 @@ export default function CreatePost() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Tiêu đề bài viết"
-                    placeholder="Nhập tiêu đề hấp dẫn cho bài viết của bạn..."
+                    label="Title"
+                    placeholder="Enter an engaging title for your article..."
                     fullWidth
                     required
                     error={!!errors.title}
@@ -141,8 +141,8 @@ export default function CreatePost() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Nội dung bài viết"
-                    placeholder="Viết nội dung chi tiết cho bài viết của bạn..."
+                    label="Content"
+                    placeholder="Write detailed content for your article..."
                     fullWidth
                     required
                     multiline
@@ -150,7 +150,7 @@ export default function CreatePost() {
                     error={!!errors.content}
                     helperText={
                       errors.content?.message ||
-                      `${field.value.length}/10000 ký tự`
+                      `${field.value.length}/10000 characters`
                     }
                     disabled={isSubmitting || createMutation.isPending}
                     sx={{
@@ -181,7 +181,7 @@ export default function CreatePost() {
                     fontWeight: 600,
                   }}
                 >
-                  Hủy
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
@@ -203,8 +203,8 @@ export default function CreatePost() {
                   }}
                 >
                   {isSubmitting || createMutation.isPending
-                    ? "Đang lưu..."
-                    : "Đăng Bài"}
+                    ? "Saving..."
+                    : "Create Post"}
                 </Button>
               </Stack>
             </Stack>
@@ -224,15 +224,15 @@ export default function CreatePost() {
       >
         <CardContent>
           <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-            💡 Mẹo viết bài:
+            💡 Tips for writing:
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            • Tiêu đề ngắn gọn, súc tích và thu hút
+            • Title should be concise, catchy, and engaging
             <br />
-            • Nội dung rõ ràng, dễ hiểu
+            • Content should be clear and easy to understand
             <br />
-            • Chia đoạn hợp lý để dễ đọc
-            <br />• Kiểm tra chính tả trước khi đăng
+            • Segment the content logically for easy reading
+            <br />• Check for spelling before posting
           </Typography>
         </CardContent>
       </Card>

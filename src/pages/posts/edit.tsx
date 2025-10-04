@@ -1,39 +1,39 @@
-import * as React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  TextField,
-  Stack,
-  Alert,
-  Container,
-  useTheme,
-  useMediaQuery,
-  Skeleton,
-} from "@mui/material";
+import { USER_KEY } from "@/config/api";
+import type { PostRequest } from "@/interface/postsInterface";
+import { postService } from "@/services/postService";
+import { yupResolver } from "@hookform/resolvers/yup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Skeleton,
+  Stack,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { postService } from "@/services/postService";
+import * as React from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
-import type { PostRequest } from "@/interface/postsInterface";
-import { USER_KEY } from "@/config/api";
+import * as yup from "yup";
 
 const schema = yup.object({
   title: yup
     .string()
-    .required("Tiêu đề là bắt buộc")
-    .min(5, "Tiêu đề phải có ít nhất 5 ký tự")
-    .max(200, "Tiêu đề không được vượt quá 200 ký tự"),
+    .required("Title is required")
+    .min(5, "Title must be at least 5 characters long")
+    .max(200, "Title cannot exceed 200 characters"),
   content: yup
     .string()
-    .required("Nội dung là bắt buộc")
-    .min(20, "Nội dung phải có ít nhất 20 ký tự")
-    .max(10000, "Nội dung không được vượt quá 10000 ký tự"),
+    .required("Content is required")
+    .min(20, "Content must be at least 20 characters long")
+    .max(10000, "Content cannot exceed 10000 characters"),
 });
 
 export default function EditPost() {
@@ -49,7 +49,11 @@ export default function EditPost() {
     return userData ? JSON.parse(userData) : null;
   }, []);
 
-  const { data: post, isLoading, error } = useQuery({
+  const {
+    data: post,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["post", id],
     queryFn: () => postService.getPost(id!),
     enabled: !!id,
@@ -102,14 +106,14 @@ export default function EditPost() {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
-          Không thể tải bài viết. Vui lòng thử lại sau.
+          Can't load the article. Please try again later.
         </Alert>
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate("/posts")}
         >
-          Quay Lại Danh Sách
+          Back to List
         </Button>
       </Container>
     );
@@ -144,7 +148,7 @@ export default function EditPost() {
           fontWeight="bold"
           color="primary"
         >
-          ✏️ Chỉnh Sửa Bài Viết
+          ✏️ Edit
         </Typography>
         <Button
           variant="outlined"
@@ -155,14 +159,14 @@ export default function EditPost() {
             borderRadius: 2,
           }}
         >
-          Quay Lại
+          Back
         </Button>
       </Stack>
 
       {/* Error Alert */}
       {updateMutation.isError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          Không thể cập nhật bài viết. Vui lòng thử lại sau.
+          Can't update the article. Please try again later.
         </Alert>
       )}
 
@@ -183,8 +187,8 @@ export default function EditPost() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Tiêu đề bài viết"
-                    placeholder="Nhập tiêu đề hấp dẫn cho bài viết của bạn..."
+                    label="Title"
+                    placeholder="Enter an engaging title for your article..."
                     fullWidth
                     required
                     error={!!errors.title}
@@ -206,8 +210,8 @@ export default function EditPost() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Nội dung bài viết"
-                    placeholder="Viết nội dung chi tiết cho bài viết của bạn..."
+                    label="Content"
+                    placeholder="Write detailed content for your article..."
                     fullWidth
                     required
                     multiline
@@ -246,7 +250,7 @@ export default function EditPost() {
                     fontWeight: 600,
                   }}
                 >
-                  Hủy
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
@@ -268,8 +272,8 @@ export default function EditPost() {
                   }}
                 >
                   {isSubmitting || updateMutation.isPending
-                    ? "Đang lưu..."
-                    : "Lưu Thay Đổi"}
+                    ? "Saving..."
+                    : "Save Changes"}
                 </Button>
               </Stack>
             </Stack>
@@ -289,13 +293,13 @@ export default function EditPost() {
       >
         <CardContent>
           <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-            ⚠️ Lưu ý:
+            ⚠️ Note:
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            • Những thay đổi sẽ được lưu ngay lập tức
+            • Changes will be saved immediately
             <br />
-            • Kiểm tra kỹ nội dung trước khi lưu
-            <br />• Bạn có thể xem lại bài viết sau khi cập nhật
+            • Check the content before saving
+            <br />• You can view the article again after updating
           </Typography>
         </CardContent>
       </Card>
