@@ -30,7 +30,7 @@ export const routes: RouteObject[] = [
         },
       },
       {
-        path: "my-posts",
+        path: "posts",
         children: [
           {
             index: true,
@@ -43,6 +43,13 @@ export const routes: RouteObject[] = [
             path: "create",
             lazy: async () => {
               const mod = await import("@/pages/posts/create");
+              return { Component: mod.default };
+            },
+          },
+          {
+            path: ":id",
+            lazy: async () => {
+              const mod = await import("@/pages/posts/detail");
               return { Component: mod.default };
             },
           },
