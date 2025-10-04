@@ -1,0 +1,97 @@
+import { useAuth } from "@/hooks/useAuth";
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { useNavigate } from "react-router";
+import MobileMenu from "./MobileMenu";
+import UserMenu from "./UserMenu";
+import ColorModeIconDropdown from "./ColorModeToggle";
+
+export default function Navbar() {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  return (
+    <AppBar
+      position="static"
+      elevation={0}
+      sx={{
+        bgcolor: "background.paper",
+        color: "text.primary",
+        borderBottom: 1,
+        borderColor: "divider",
+      }}
+    >
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ gap: 2 }}>
+          {/* Logo */}
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              flexGrow: 1,
+              cursor: "pointer",
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              color: "inherit",
+            }}
+            onClick={() => navigate(isAuthenticated ? "/home" : "/")}
+          >
+            Blog App
+          </Typography>
+
+          {/* Desktop Right Side */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {/* Mobile Hamburger */}
+            <MobileMenu />
+
+            <Box
+              sx={{
+                display: { xs: "none", sm: "flex" },
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              {!isAuthenticated ? (
+                <>
+                  <Button
+                    color="inherit"
+                    variant="outlined"
+                    size="small"
+                    onClick={() => navigate("/login")}
+                    sx={{ borderRadius: 2, textTransform: "none" }}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    size="small"
+                    onClick={() => navigate("/register")}
+                    sx={{ borderRadius: 2, textTransform: "none" }}
+                  >
+                    Register
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <UserMenu />
+                </>
+              )}
+            </Box>
+
+            <ColorModeIconDropdown />
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
+  );
+}

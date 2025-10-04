@@ -1,5 +1,4 @@
-import ProtectedRoute from "@/components/ProtectedRoute";
-import RootLayout from "@/components/RootLayout";
+import RootLayout from "@/components/common/RootLayout";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
@@ -26,16 +25,12 @@ export const routes: RouteObject[] = [
         lazy: async () => {
           const mod = await import("@/pages/home/Home");
           return {
-            Component: () => (
-              <ProtectedRoute>
-                <mod.default />
-              </ProtectedRoute>
-            ),
+            Component: mod.default,
           };
         },
       },
       {
-        path: "posts",
+        path: "my-posts",
         children: [
           {
             index: true,

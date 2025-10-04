@@ -2,7 +2,9 @@ import { blue, deepPurple, green, red } from "@mui/material/colors";
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
-  cssVariables: { colorSchemeSelector: "class" },
+  cssVariables: {
+    colorSchemeSelector: "class", // match Init script
+  },
   colorSchemes: {
     light: {
       palette: {

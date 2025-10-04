@@ -5,22 +5,42 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>blogs-fe</title>
+
+    <style>
+      /* Initial styles để tránh flash trắng/đen, match palette của bạn */
+      html.light {
+        background-color: #fafafa; /* background.default light */
+        color: #000;
+      }
+      html.dark {
+        background-color: #121212; /* background.default dark */
+        color: #fff;
+      }
+      /* Áp dụng cho body để cover toàn bộ */
+      body {
+        background-color: inherit;
+        color: inherit;
+        transition: none; /* Tắt transition initial để mượt */
+      }
+    </style>
+    <script>
+      (function () {
+        // Lấy mode từ localStorage (mui-mode) hoặc fallback system
+        let mode = localStorage.getItem("mui-mode");
+        if (!mode) {
+          mode =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        }
+        // Set class ngay lập tức
+        document.documentElement.className = mode;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-
-    <script>
-      (function () {
-        const savedMode = localStorage.getItem("color-mode");
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
-        const mode = savedMode || (prefersDark ? "dark" : "light");
-        document.documentElement.dataset.theme = mode;
-        document.body.style.backgroundColor =
-          mode === "dark" ? "#121212" : "#f4f6f8";
-      })();
-    </script>
   </body>
 </html>

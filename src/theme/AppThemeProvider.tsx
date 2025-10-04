@@ -14,8 +14,13 @@ export default function AppThemeProvider({
   return (
     <>
       {/* Gắn script để tránh flicker khi SSR hoặc reload */}
-      <InitColorSchemeScript attribute="class" />
-      <ThemeProvider theme={theme} defaultMode="system">
+      <InitColorSchemeScript attribute="class" defaultMode="system" />
+      <ThemeProvider
+        theme={theme}
+        defaultMode="system"
+        disableTransitionOnChange
+        noSsr
+      >
         <CssBaseline enableColorScheme />
         {children}
       </ThemeProvider>

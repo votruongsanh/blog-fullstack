@@ -1,5 +1,6 @@
 import { clearAuth, getToken } from "@/utils/authUtils";
 import axios from "axios";
+import { redirect } from "react-router";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -25,7 +26,7 @@ axiosClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       clearAuth();
-      window.location.href = "/login";
+      redirect("/login");
     }
     return Promise.reject(error);
   }
