@@ -13,7 +13,7 @@ import UserMenu from "./UserMenu";
 import ColorModeIconDropdown from "./ColorModeToggle";
 
 export default function Navbar() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -27,7 +27,7 @@ export default function Navbar() {
         borderColor: "divider",
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ gap: 2 }}>
           {/* Logo */}
           <Typography
