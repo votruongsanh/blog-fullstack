@@ -1,4 +1,7 @@
+import Loading from "@/components/common/Loading";
 import RootLayout from "@/components/common/RootLayout";
+import { authLoader, protectedLoader } from "@/loaders/authLoader";
+import { editPostLoader } from "@/loaders/postLoader";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
@@ -7,18 +10,11 @@ export const routes: RouteObject[] = [
   {
     path: "/",
     element: <RootLayout />,
+    hydrateFallbackElement: <Loading />,
     children: [
       {
         index: true,
         element: <Navigate to="/home" replace />,
-      },
-      {
-        path: "login",
-        Component: Login,
-      },
-      {
-        path: "register",
-        Component: Register,
       },
       {
         path: "home",
@@ -30,7 +26,18 @@ export const routes: RouteObject[] = [
         },
       },
       {
+        path: "login",
+        Component: Login,
+        loader: authLoader,
+      },
+      {
+        path: "register",
+        Component: Register,
+        loader: authLoader,
+      },
+      {
         path: "posts",
+        loader: protectedLoader,
         children: [
           {
             index: true,
@@ -57,7 +64,10 @@ export const routes: RouteObject[] = [
             path: ":id/edit",
             lazy: async () => {
               const mod = await import("@/pages/posts/edit");
-              return { Component: mod.default };
+              return {
+                Component: mod.default,
+                loader: editPostLoader,
+              };
             },
           },
         ],

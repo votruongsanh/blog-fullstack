@@ -35,7 +35,7 @@ export const postService = {
     return response.data;
   },
 
-  updatePost: async (id: string, data: PostRequest): Promise<Post> => {
+  updatePost: async (id: string, data: Partial<PostRequest>): Promise<Post> => {
     const response = await axiosClient.patch<Post>(
       API_ENDPOINTS.POSTS.UPDATE(id),
       data

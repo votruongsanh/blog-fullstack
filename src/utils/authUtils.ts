@@ -1,4 +1,4 @@
-import { TOKEN_KEY } from "@/config/api";
+import { TOKEN_KEY, USER_KEY } from "@/config/api";
 
 /**
  * Lấy token từ localStorage hoặc cookie
@@ -30,5 +30,6 @@ export function isAuthenticated(): boolean {
  */
 export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
   document.cookie = `${TOKEN_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }

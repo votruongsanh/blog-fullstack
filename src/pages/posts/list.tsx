@@ -1,29 +1,29 @@
-import * as React from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  CardActions,
-  Typography,
-  Button,
-  Stack,
-  Pagination,
-  Chip,
-  Alert,
-  Container,
-  useTheme,
-  useMediaQuery,
-  IconButton,
-  Skeleton,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import PersonIcon from "@mui/icons-material/Person";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import { useQuery } from "@tanstack/react-query";
-import { postService } from "@/services/postService";
-import { useNavigate } from "react-router";
+import { usePosts } from "@/hooks/usePosts";
 import { isAuthenticated } from "@/utils/authUtils";
+import { formatDate } from "@/utils/format";
+import AddIcon from "@mui/icons-material/Add";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import PersonIcon from "@mui/icons-material/Person";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
+  Container,
+  IconButton,
+  Pagination,
+  Skeleton,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import * as React from "react";
+import { useNavigate } from "react-router";
 
 export default function PostsList() {
   const [page, setPage] = React.useState(1);
@@ -32,10 +32,7 @@ export default function PostsList() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isAuth = isAuthenticated();
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["posts", page],
-    queryFn: () => postService.getPosts(page, 10),
-  });
+  const { data, isLoading, error, isFetching } = usePosts(page, 10);
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
@@ -43,15 +40,6 @@ export default function PostsList() {
   ) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(date);
   };
 
   if (error) {
@@ -74,15 +62,24 @@ export default function PostsList() {
         mb={4}
       >
         <Box>
-          <Typography
-            variant={isMobile ? "h5" : "h4"}
-            fontWeight="bold"
-            color="primary"
-            gutterBottom
-          >
-            📝 Posts
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography
+              variant={isMobile ? "h5" : "h4"}
+              fontWeight="bold"
+              color="primary"
+            >
+              📝 Posts
+            </Typography>
+            {isFetching && (
+              <Chip
+                label="Syncing..."
+                size="small"
+                color="info"
+                sx={{ animation: "pulse 1.5s ease-in-out infinite" }}
+              />
+            )}
+          </Stack>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             {isLoading ? (
               <Skeleton width={200} />
             ) : (

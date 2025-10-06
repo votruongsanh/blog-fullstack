@@ -1,25 +1,23 @@
-import * as React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  TextField,
-  Stack,
-  Alert,
-  Container,
-  useTheme,
-  useMediaQuery,
-} from "@mui/material";
+import { useCreatePost } from "@/hooks/usePosts";
+import type { PostRequest } from "@/interface/postsInterface";
+import { yupResolver } from "@hookform/resolvers/yup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postService } from "@/services/postService";
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Stack,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import type { PostRequest } from "@/interface/postsInterface";
+import * as yup from "yup";
 
 const schema = yup.object({
   title: yup
@@ -38,7 +36,6 @@ export default function CreatePost() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const queryClient = useQueryClient();
 
   const {
     control,
@@ -51,14 +48,7 @@ export default function CreatePost() {
       content: "",
     },
   });
-
-  const createMutation = useMutation({
-    mutationFn: (data: PostRequest) => postService.createPost(data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-      navigate(`/posts/${data.id}`);
-    },
-  });
+  const createMutation = useCreatePost();
 
   const onSubmit = (data: PostRequest) => {
     createMutation.mutate(data);

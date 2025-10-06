@@ -8,7 +8,7 @@ import type {
 import { authService } from "../services/authService";
 
 interface AuthContextType {
-  user: User | null;
+  user: Partial<User> | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (data: LoginRequest) => Promise<void>;
@@ -30,7 +30,7 @@ const isTokenExpired = (token: string): boolean => {
 };
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Partial<User> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

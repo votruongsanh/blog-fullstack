@@ -1,6 +1,6 @@
-import { USER_KEY } from "@/config/api";
+import { useUpdatePost } from "@/hooks/usePosts";
 import type { PostRequest } from "@/interface/postsInterface";
-import { postService } from "@/services/postService";
+import { queryClient } from "@/lib/react-query";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
@@ -17,12 +17,10 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as React from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import { useLoaderData, useNavigate, useParams } from "react-router";
 import * as yup from "yup";
-
 const schema = yup.object({
   title: yup
     .string()
@@ -41,66 +39,40 @@ export default function EditPost() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const queryClient = useQueryClient();
 
-  // Get current user
-  const currentUser = React.useMemo(() => {
-    const userData = localStorage.getItem(USER_KEY);
-    return userData ? JSON.parse(userData) : null;
-  }, []);
-
-  const {
-    data: post,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["post", id],
-    queryFn: () => postService.getPost(id!),
-    enabled: !!id,
-  });
+  const post = useLoaderData();
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<PostRequest>({
     resolver: yupResolver(schema),
     defaultValues: {
-      title: "",
-      content: "",
+      title: post?.title || "",
+      content: post?.content || "",
     },
   });
 
-  // Update form when post data is loaded
-  React.useEffect(() => {
-    if (post) {
-      reset({
-        title: post.title,
-        content: post.content,
-      });
-    }
-  }, [post, reset]);
-
-  // Check if user is the owner
-  React.useEffect(() => {
-    if (post && currentUser && post.authorId !== currentUser.id) {
-      navigate(`/posts/${id}`);
-    }
-  }, [post, currentUser, id, navigate]);
-
-  const updateMutation = useMutation({
-    mutationFn: (data: PostRequest) => postService.updatePost(id!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-      queryClient.invalidateQueries({ queryKey: ["post", id] });
-      navigate(`/posts/${id}`);
-    },
-  });
+  const { mutate: updatePost, error, isPending } = useUpdatePost();
 
   const onSubmit = (data: PostRequest) => {
-    updateMutation.mutate(data);
+    updatePost({ id: id!, data });
   };
+
+  // Nếu cache bị xóa (do tab khác delete), redirect về list
+  React.useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event?.type === "removed") {
+        const [key, postId] = event.query.queryKey;
+        if (key === "post" && postId === id) {
+          navigate("/posts", { replace: true });
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [queryClient, id, navigate]);
 
   if (error) {
     return (
@@ -119,7 +91,7 @@ export default function EditPost() {
     );
   }
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <Container maxWidth="md" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
         <Skeleton variant="text" width="40%" height={40} sx={{ mb: 3 }} />
@@ -135,7 +107,6 @@ export default function EditPost() {
 
   return (
     <Container maxWidth="md" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
-      {/* Header */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         alignItems={{ xs: "flex-start", sm: "center" }}
@@ -163,14 +134,14 @@ export default function EditPost() {
         </Button>
       </Stack>
 
-      {/* Error Alert */}
-      {updateMutation.isError && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          Can't update the article. Please try again later.
-        </Alert>
-      )}
+      <>
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            Can't update the article. Please try again later.
+          </Alert>
+        )}
+      </>
 
-      {/* Form Card */}
       <Card
         sx={{
           borderRadius: 3,
@@ -180,7 +151,6 @@ export default function EditPost() {
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={3}>
-              {/* Title Field */}
               <Controller
                 name="title"
                 control={control}
@@ -193,7 +163,7 @@ export default function EditPost() {
                     required
                     error={!!errors.title}
                     helperText={errors.title?.message}
-                    disabled={isSubmitting || updateMutation.isPending}
+                    disabled={isSubmitting || isPending}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 2,
@@ -203,7 +173,6 @@ export default function EditPost() {
                 )}
               />
 
-              {/* Content Field */}
               <Controller
                 name="content"
                 control={control}
@@ -221,7 +190,7 @@ export default function EditPost() {
                       errors.content?.message ||
                       `${field.value.length}/10000 ký tự`
                     }
-                    disabled={isSubmitting || updateMutation.isPending}
+                    disabled={isSubmitting || isPending}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 2,
@@ -231,7 +200,6 @@ export default function EditPost() {
                 )}
               />
 
-              {/* Action Buttons */}
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={2}
@@ -240,7 +208,7 @@ export default function EditPost() {
                 <Button
                   variant="outlined"
                   onClick={() => navigate(`/posts/${id}`)}
-                  disabled={isSubmitting || updateMutation.isPending}
+                  disabled={isSubmitting || isPending}
                   fullWidth={isMobile}
                   sx={{
                     textTransform: "none",
@@ -257,7 +225,7 @@ export default function EditPost() {
                   variant="contained"
                   color="primary"
                   startIcon={<SaveIcon />}
-                  disabled={isSubmitting || updateMutation.isPending}
+                  disabled={isSubmitting || isPending}
                   fullWidth={isMobile}
                   sx={{
                     textTransform: "none",
@@ -271,9 +239,7 @@ export default function EditPost() {
                     },
                   }}
                 >
-                  {isSubmitting || updateMutation.isPending
-                    ? "Saving..."
-                    : "Save Changes"}
+                  {isSubmitting || isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </Stack>
             </Stack>
@@ -281,7 +247,6 @@ export default function EditPost() {
         </CardContent>
       </Card>
 
-      {/* Tips Card */}
       <Card
         sx={{
           mt: 3,

@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
-import { postService } from "@/services/postService";
+import { useDeletePost, usePost } from "@/hooks/usePosts";
+import { queryClient } from "@/lib/react-query";
 import { isAuthenticated } from "@/utils/authUtils";
 import { formatDate } from "@/utils/format";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -28,7 +29,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router";
 
@@ -38,45 +38,33 @@ export default function PostDetail() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isAuth = isAuthenticated();
-  const queryClient = useQueryClient();
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
   // Get current user
   const { user } = useAuth();
 
-  const {
-    data: post,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["post", id],
-    queryFn: () => postService.getPost(id!),
-    enabled: !!id,
-  });
+  const { data: post, isLoading, error } = usePost(id);
 
-  const deleteMutation = useMutation({
-    mutationFn: () => postService.deletePost(id!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-      navigate("/posts");
-    },
-  });
+  const deleteMutation = useDeletePost();
 
   const handleDelete = () => {
-    deleteMutation.mutate();
+    deleteMutation.mutate(id!);
     setOpenDeleteDialog(false);
   };
 
-  //   const formatDate = (dateString: string) => {
-  //     const date = new Date(dateString);
-  //     return new Intl.DateTimeFormat("vi-VN", {
-  //       year: "numeric",
-  //       month: "long",
-  //       day: "numeric",
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //     }).format(date);
-  //   };
+  // Nếu cache bị xóa (do tab khác delete), redirect về list
+  React.useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event?.type === "removed") {
+        const [key, postId] = event.query.queryKey;
+        if (key === "post" && postId === id) {
+          navigate("/posts", { replace: true });
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [queryClient, id, navigate]);
 
   const isOwner = user && post && user.id === post.authorId;
 
@@ -178,7 +166,7 @@ export default function PostDetail() {
           >
             <Chip
               icon={<PersonIcon />}
-              label={`${post.author.name}`}
+              label={`${post?.author?.name}`}
               size={isMobile ? "small" : "medium"}
               variant="filled"
               color="primary"
@@ -190,7 +178,7 @@ export default function PostDetail() {
             />
             <Chip
               icon={<CalendarTodayIcon />}
-              label={`Created: ${formatDate(post.createdAt)}`}
+              label={`Created: ${formatDate(post?.createdAt)}`}
               size={isMobile ? "small" : "medium"}
               variant="outlined"
               color="default"
@@ -202,7 +190,7 @@ export default function PostDetail() {
             {post.updatedAt !== post.createdAt && (
               <Chip
                 icon={<UpdateIcon />}
-                label={`Updated: ${formatDate(post.updatedAt)}`}
+                label={`Updated: ${formatDate(post?.updatedAt)}`}
                 size={isMobile ? "small" : "medium"}
                 variant="outlined"
                 color="info"
