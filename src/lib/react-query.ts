@@ -56,7 +56,7 @@ export const queryClient = new QueryClient({
         }
         return failureCount < 1;
       },
-      // networkMode: "online", // mặc định đã là online → không cần set lại
+      networkMode: "online", // mặc định đã là online → không cần set lại
     },
   },
 });

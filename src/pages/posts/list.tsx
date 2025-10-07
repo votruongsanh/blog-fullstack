@@ -70,14 +70,14 @@ export default function PostsList() {
             >
               📝 Posts
             </Typography>
-            {isFetching && (
+            {/* {isFetching && (
               <Chip
                 label="Syncing..."
                 size="small"
                 color="info"
                 sx={{ animation: "pulse 1.5s ease-in-out infinite" }}
               />
-            )}
+            )} */}
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             {isLoading ? (
