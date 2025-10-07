@@ -2,10 +2,12 @@ import {
   clearTokens,
   getAccessToken,
   getUser,
+  isTokenExpired,
   setAccessToken,
   setUserLocalStorage,
 } from "@/lib/tokenService";
-import { createContext, type ReactNode, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createContext, useCallback, type ReactNode } from "react";
 import type {
   LoginRequest,
   RegisterRequest,
@@ -24,76 +26,77 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to check if JWT token is expired
-const isTokenExpired = (token: string): boolean => {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const expirationTime = payload.exp * 1000; // Convert to milliseconds
-    return Date.now() >= expirationTime;
-  } catch {
-    return true; // If we can't parse the token, consider it expired
-  }
-};
-
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<Partial<User> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const token = getAccessToken();
-    const userData = getUser();
-
-    if (token && userData) {
-      try {
-        if (isTokenExpired(token)) {
-          clearTokens();
-          setUser(null);
-        } else {
-          setUser(JSON.parse(userData));
-        }
-      } catch {
+  // ---- Core: load user on app start ----
+  const { data: authUser, isFetching } = useQuery<Partial<User> | null>({
+    queryKey: ["auth"],
+    queryFn: async () => {
+      const token = getAccessToken();
+      const storedUser = getUser();
+      if (!token || !storedUser) return null;
+      if (isTokenExpired(token)) {
         clearTokens();
-        setUser(null);
+        return null;
       }
-    }
-    setIsLoading(false);
-  }, []);
+      return JSON.parse(storedUser);
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 
-  const login = async (data: LoginRequest) => {
-    const response = await authService.login(data);
-    setAccessToken(response.accessToken);
-    setUserLocalStorage(JSON.stringify(response.user));
-    setUser(response.user);
-  };
+  // ---- Auth actions ----
+  const handleLogin = useCallback(
+    async (data: LoginRequest) => {
+      const res = await authService.login(data);
+      setAccessToken(res.accessToken);
+      setUserLocalStorage(JSON.stringify(res.user));
 
-  const register = async (data: RegisterRequest) => {
-    const response = await authService.register(data);
-    setAccessToken(response.accessToken);
-    setUserLocalStorage(JSON.stringify(response.user));
-    setUser(response.user);
-  };
+      queryClient.setQueryData(["auth"], res.user);
+      queryClient.invalidateQueries({
+        queryKey: ["auth"],
+        refetchType: "none",
+      }); // broadcast sync
+    },
+    [queryClient]
+  );
 
-  const logout = () => {
+  const handleRegister = useCallback(
+    async (data: RegisterRequest) => {
+      const res = await authService.register(data);
+      setAccessToken(res.accessToken);
+      setUserLocalStorage(JSON.stringify(res.user));
+
+      queryClient.setQueryData(["auth"], res.user);
+      queryClient.invalidateQueries({
+        queryKey: ["auth"],
+        refetchType: "none",
+      });
+    },
+    [queryClient]
+  );
+
+  const handleLogout = useCallback(() => {
     clearTokens();
-    setUser(null);
-  };
+    queryClient.setQueryData(["auth"], null);
+    queryClient.invalidateQueries({ queryKey: ["auth"], refetchType: "none" });
+  }, [queryClient]);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        register,
-        logout,
+        user: authUser ?? null,
+        isAuthenticated: !!authUser,
+        isLoading: isFetching,
+        login: handleLogin,
+        register: handleRegister,
+        logout: handleLogout,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-
 export default AuthProvider;
 export { AuthContext };

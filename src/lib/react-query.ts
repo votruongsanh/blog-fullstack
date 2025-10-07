@@ -68,28 +68,3 @@ broadcastQueryClient({
   queryClient,
   broadcastChannel: "blog-app", // Tên channel sync cache giữa tabs
 });
-
-// ------------------------------
-// Online/Offline handling
-// ------------------------------
-onlineManager.setEventListener((setOnline) => {
-  if (typeof window !== "undefined") {
-    const onlineListener = () => setOnline(true);
-    const offlineListener = () => setOnline(false);
-
-    window.addEventListener("online", onlineListener);
-    window.addEventListener("offline", offlineListener);
-
-    return () => {
-      window.removeEventListener("online", onlineListener);
-      window.removeEventListener("offline", offlineListener);
-    };
-  }
-});
-
-// Tự động refetch khi online lại
-onlineManager.subscribe(() => {
-  if (onlineManager.isOnline()) {
-    queryClient.refetchQueries({ type: "active" });
-  }
-});
