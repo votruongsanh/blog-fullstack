@@ -30,7 +30,6 @@ export default function UserMenu() {
   const handleLogout = () => {
     handleClose();
     logout();
-    navigate("/login");
   };
 
   const getInitials = (name: string) => {

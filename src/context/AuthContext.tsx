@@ -7,7 +7,13 @@ import {
   setUserLocalStorage,
 } from "@/lib/tokenService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import type {
   LoginRequest,
   RegisterRequest,
@@ -19,7 +25,7 @@ interface AuthContextType {
   user: Partial<User> | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: LoginRequest) => Promise<void>;
+  login: (data: LoginRequest, redirectTo?: string) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
 }
@@ -28,8 +34,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
+  const [optimisticUser, setOptimisticUser] = useState<Partial<User> | null>(
+    null
+  );
 
-  // ---- Core: load user on app start ----
+  // ---- Load user on app start ----
   const { data: authUser, isFetching } = useQuery<Partial<User> | null>({
     queryKey: ["auth"],
     queryFn: async () => {
@@ -46,28 +55,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     gcTime: Infinity,
   });
 
-  // ---- Auth actions ----
+  // ---- Login ----
   const handleLogin = useCallback(
     async (data: LoginRequest) => {
       const res = await authService.login(data);
       setAccessToken(res.accessToken);
       setUserLocalStorage(JSON.stringify(res.user));
 
-      queryClient.setQueryData(["auth"], res.user);
-      queryClient.invalidateQueries({
-        queryKey: ["auth"],
-        refetchType: "none",
-      }); // broadcast sync
-    },
-    [queryClient]
-  );
-
-  const handleRegister = useCallback(
-    async (data: RegisterRequest) => {
-      const res = await authService.register(data);
-      setAccessToken(res.accessToken);
-      setUserLocalStorage(JSON.stringify(res.user));
-
+      setOptimisticUser(res.user);
       queryClient.setQueryData(["auth"], res.user);
       queryClient.invalidateQueries({
         queryKey: ["auth"],
@@ -77,17 +72,42 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     [queryClient]
   );
 
+  // ---- Register ----
+  const handleRegister = useCallback(
+    async (data: RegisterRequest) => {
+      const res = await authService.register(data);
+      setAccessToken(res.accessToken);
+      setUserLocalStorage(JSON.stringify(res.user));
+
+      setOptimisticUser(res.user);
+      queryClient.setQueryData(["auth"], res.user);
+      queryClient.invalidateQueries({
+        queryKey: ["auth"],
+        refetchType: "none",
+      });
+    },
+    [queryClient]
+  );
+
+  // ---- Logout ----
   const handleLogout = useCallback(() => {
     clearTokens();
+    setOptimisticUser(null);
+
     queryClient.setQueryData(["auth"], null);
-    queryClient.invalidateQueries({ queryKey: ["auth"], refetchType: "none" });
+    queryClient.invalidateQueries({
+      queryKey: ["auth"],
+      refetchType: "none",
+    });
   }, [queryClient]);
 
+  // ✅ Auto update isAuthenticated in real time
+  const currentUser = useMemo(() => authUser ?? null, [authUser]);
   return (
     <AuthContext.Provider
       value={{
-        user: authUser ?? null,
-        isAuthenticated: !!authUser,
+        user: currentUser,
+        isAuthenticated: !!currentUser,
         isLoading: isFetching,
         login: handleLogin,
         register: handleRegister,
@@ -98,5 +118,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     </AuthContext.Provider>
   );
 };
+
 export default AuthProvider;
 export { AuthContext };

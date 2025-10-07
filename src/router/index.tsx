@@ -1,10 +1,11 @@
 import Loading from "@/components/common/Loading";
 import RootLayout from "@/components/common/RootLayout";
-import { authLoader, protectedLoader } from "@/loaders/authLoader";
 import { editPostLoader } from "@/loaders/postLoader";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { PublicRoute } from "./PublicRoute";
 
 export const routes: RouteObject[] = [
   {
@@ -26,21 +27,18 @@ export const routes: RouteObject[] = [
         },
       },
       {
-        path: "login",
-        Component: Login,
-        loader: authLoader,
+        element: <PublicRoute />,
+        children: [
+          { path: "login", Component: Login },
+          { path: "register", Component: Register },
+        ],
       },
       {
-        path: "register",
-        Component: Register,
-        loader: authLoader,
-      },
-      {
-        path: "posts",
-        loader: protectedLoader,
+        // loader: protectedLoader,
+        element: <ProtectedRoute />,
         children: [
           {
-            index: true,
+            path: "posts",
             lazy: async () => {
               const mod = await import("@/pages/posts/list");
               return { Component: mod.default };
@@ -54,14 +52,14 @@ export const routes: RouteObject[] = [
             },
           },
           {
-            path: ":id",
+            path: "posts/:id",
             lazy: async () => {
               const mod = await import("@/pages/posts/detail");
               return { Component: mod.default };
             },
           },
           {
-            path: ":id/edit",
+            path: "posts/:id/edit",
             lazy: async () => {
               const mod = await import("@/pages/posts/edit");
               return {

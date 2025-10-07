@@ -14,12 +14,16 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string>("");
+
+  const location = useLocation();
+  const from =
+    (location.state as { from?: Location })?.from?.pathname || "/home";
 
   const {
     register,
@@ -37,7 +41,7 @@ const Login = () => {
     try {
       setError("");
       await login(data);
-      navigate("/home");
+      navigate(from, { replace: true });
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const error = err as { response?: { data?: { message?: string } } };
