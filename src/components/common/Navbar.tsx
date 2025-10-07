@@ -84,6 +84,20 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate("/home")}
+                    sx={{ textTransform: "none" }}
+                  >
+                    Home
+                  </Button>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate(ROUTE_PAGES.GALLERY)}
+                    sx={{ textTransform: "none" }}
+                  >
+                    Gallery
+                  </Button>
                   <UserMenu />
                 </>
               )}

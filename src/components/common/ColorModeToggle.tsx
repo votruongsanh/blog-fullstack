@@ -7,6 +7,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useColorScheme } from "@mui/material/styles";
 import * as React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ColorModeIconDropdown() {
   const { mode, setMode, systemMode } = useColorScheme();
@@ -16,14 +17,24 @@ export default function ColorModeIconDropdown() {
     setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  // setMode hoạt động vì chúng ta đã dùng colorSchemeSelector: 'class' trong theme
+  // Enhanced mode handling with localStorage persistence
   const handleMode = (m: "system" | "light" | "dark") => {
     setMode(m);
+    // Save to localStorage for persistence
+    localStorage.setItem('theme-mode', m);
     handleClose();
   };
 
-  // resolvedMode là mode thực tế đang hiển thị (systemMode fallback)
+  // resolvedMode is the actual mode being displayed (systemMode fallback)
   const resolvedMode = (systemMode || mode) as "light" | "dark";
+
+  // Load saved theme from localStorage on component mount
+  React.useEffect(() => {
+    const savedMode = localStorage.getItem('theme-mode') as "system" | "light" | "dark" | null;
+    if (savedMode && savedMode !== mode) {
+      setMode(savedMode);
+    }
+  }, [mode, setMode]);
 
   const icon =
     mode === "system" ? (
@@ -61,8 +72,26 @@ export default function ColorModeIconDropdown() {
         aria-controls={open ? "mode-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
+        sx={{
+          position: 'relative',
+          transition: 'all 0.3s ease-in-out',
+          '&:hover': {
+            transform: 'scale(1.1)',
+            backgroundColor: 'action.hover',
+          },
+        }}
       >
-        {icon}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={resolvedMode}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            exit={{ rotate: 90, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {icon}
+          </motion.div>
+        </AnimatePresence>
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -76,6 +105,14 @@ export default function ColorModeIconDropdown() {
             elevation: 0,
             sx: {
               my: "4px",
+              minWidth: 120,
+              '& .MuiMenuItem-root': {
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  transform: 'translateX(4px)',
+                },
+              },
             },
           },
         }}
@@ -86,16 +123,25 @@ export default function ColorModeIconDropdown() {
           selected={mode === "system"}
           onClick={() => handleMode("system")}
         >
-          System
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <SettingsBrightnessIcon fontSize="small" />
+            System
+          </Box>
         </MenuItem>
         <MenuItem
           selected={mode === "light"}
           onClick={() => handleMode("light")}
         >
-          Light
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LightModeIcon fontSize="small" />
+            Light
+          </Box>
         </MenuItem>
         <MenuItem selected={mode === "dark"} onClick={() => handleMode("dark")}>
-          Dark
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <DarkModeIcon fontSize="small" />
+            Dark
+          </Box>
         </MenuItem>
       </Menu>
     </React.Fragment>

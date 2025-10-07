@@ -1,5 +1,6 @@
 export const ROUTE_PAGES = {
   HOME: "/",
+  GALLERY: "/gallery",
   AUTH: {
     REGISTER: "/register",
     LOGIN: "/login",

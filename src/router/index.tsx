@@ -28,6 +28,15 @@ export const routes: RouteObject[] = [
         },
       },
       {
+        path: "gallery",
+        lazy: async () => {
+          const mod = await import("@/pages/posts/Gallery");
+          return {
+            Component: mod.default,
+          };
+        },
+      },
+      {
         element: <PublicRoute />,
         children: [
           { path: "login", Component: Login },
