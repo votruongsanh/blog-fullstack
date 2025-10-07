@@ -36,7 +36,6 @@ export default function Navbar() {
             noWrap
             component="div"
             sx={{
-              flexGrow: 1,
               cursor: "pointer",
               fontWeight: 600,
               display: "flex",
@@ -48,6 +47,35 @@ export default function Navbar() {
           >
             Blog App
           </Typography>
+
+          {/* Desktop Navigation Menu - Centered (ẩn ở mobile) */}
+          <Box
+            sx={{
+              display: { xs: "none", sm: "flex" },
+              alignItems: "center",
+              gap: 2,
+              flexGrow: 1,
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              color="inherit"
+              onClick={() => navigate("/home")}
+              sx={{ textTransform: "none" }}
+            >
+              Home
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate(ROUTE_PAGES.GALLERY)}
+              sx={{ textTransform: "none" }}
+            >
+              Gallery
+            </Button>
+          </Box>
+
+          {/* Spacer for mobile - ensures right side stays right-aligned */}
+          <Box sx={{ display: { xs: "flex", sm: "none" }, flexGrow: 1 }} />
 
           {/* Desktop Right Side */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -84,20 +112,6 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Button
-                    color="inherit"
-                    onClick={() => navigate("/home")}
-                    sx={{ textTransform: "none" }}
-                  >
-                    Home
-                  </Button>
-                  <Button
-                    color="inherit"
-                    onClick={() => navigate(ROUTE_PAGES.GALLERY)}
-                    sx={{ textTransform: "none" }}
-                  >
-                    Gallery
-                  </Button>
                   <UserMenu />
                 </>
               )}

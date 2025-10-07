@@ -3,17 +3,21 @@ import { useEffect, useState } from 'react';
 interface UseCountUpOptions {
   duration?: number;
   startValue?: number;
+  runOnce?: boolean;
 }
 
 export const useCountUp = (endValue: number, options: UseCountUpOptions = {}) => {
-  const { duration = 2000, startValue = 0 } = options;
+  const { duration = 2000, startValue = 0, runOnce = true } = options;
   const [count, setCount] = useState(startValue);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
+    if (runOnce && hasAnimated) return;
     if (isAnimating) return;
 
     setIsAnimating(true);
+    setHasAnimated(true);
     const startTime = Date.now();
     const startCount = startValue;
 
@@ -37,7 +41,7 @@ export const useCountUp = (endValue: number, options: UseCountUpOptions = {}) =>
     };
 
     requestAnimationFrame(animate);
-  }, [endValue, duration, startValue, isAnimating]);
+  }, [endValue, duration, startValue, isAnimating, runOnce, hasAnimated]);
 
-  return { count, isAnimating };
+  return { count, isAnimating, hasAnimated };
 };

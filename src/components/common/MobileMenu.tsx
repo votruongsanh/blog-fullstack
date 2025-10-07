@@ -1,6 +1,6 @@
 import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
-import { Article, Logout, Menu, Person } from "@mui/icons-material";
+import { Article, Home, Image, Logout, Menu, Person } from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -72,6 +72,32 @@ export default function MobileMenu() {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
+                  navigate("/home");
+                  setMobileOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText primary="Home" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  navigate(ROUTE_PAGES.GALLERY);
+                  setMobileOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Image />
+                </ListItemIcon>
+                <ListItemText primary="Gallery" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
                   navigate(ROUTE_PAGES.POSTS.LIST);
                   setMobileOpen(false);
                 }}
@@ -82,6 +108,7 @@ export default function MobileMenu() {
                 <ListItemText primary="My Posts" />
               </ListItemButton>
             </ListItem>
+            <Divider />
             <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>
                 <ListItemIcon>
