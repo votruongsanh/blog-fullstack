@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
 import { useDeletePost, usePost } from "@/hooks/usePosts";
 import { queryClient } from "@/lib/react-query";
@@ -57,7 +58,7 @@ export default function PostDetail() {
       if (event?.type === "removed") {
         const [key, postId] = event.query.queryKey;
         if (key === "post" && postId === id) {
-          navigate("/posts", { replace: true });
+          navigate(ROUTE_PAGES.POSTS.LIST, { replace: true });
         }
       }
     });
@@ -76,7 +77,7 @@ export default function PostDetail() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/posts")}
+          onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
         >
           Back to List
         </Button>
@@ -110,7 +111,7 @@ export default function PostDetail() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/posts")}
+          onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
         >
           Back to List
         </Button>
@@ -124,7 +125,7 @@ export default function PostDetail() {
       <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate("/posts")}
+        onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
         sx={{
           mb: 3,
           textTransform: "none",
@@ -232,7 +233,7 @@ export default function PostDetail() {
                 variant="contained"
                 color="primary"
                 startIcon={<EditIcon />}
-                onClick={() => navigate(`/posts/${id}/edit`)}
+                onClick={() => navigate(ROUTE_PAGES.POSTS.EDIT(id ? id : ""))}
                 fullWidth={isMobile}
                 sx={{
                   textTransform: "none",

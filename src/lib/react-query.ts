@@ -1,10 +1,10 @@
+import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import {
-  QueryClient,
-  QueryCache,
   MutationCache,
   onlineManager,
+  QueryCache,
+  QueryClient,
 } from "@tanstack/react-query";
-import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 
 // ------------------------------
 // Query Client setup
@@ -38,8 +38,8 @@ export const queryClient = new QueryClient({
         return failureCount < 3;
       },
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
-      staleTime: 2 * 60 * 1000, // 2 phút
-      gcTime: 10 * 60 * 1000, // 10 phút
+      staleTime: 2 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: "always",
@@ -56,7 +56,7 @@ export const queryClient = new QueryClient({
         }
         return failureCount < 1;
       },
-      networkMode: "online", // mặc định đã là online → không cần set lại
+      networkMode: "online",
     },
   },
 });
@@ -66,5 +66,27 @@ export const queryClient = new QueryClient({
 // ------------------------------
 broadcastQueryClient({
   queryClient,
-  broadcastChannel: "blog-app", // Tên channel sync cache giữa tabs
+  broadcastChannel: "blog-app",
+});
+
+onlineManager.setEventListener((setOnline) => {
+  if (typeof window !== "undefined") {
+    const onlineListener = () => setOnline(true);
+    const offlineListener = () => setOnline(false);
+
+    window.addEventListener("online", onlineListener);
+    window.addEventListener("offline", offlineListener);
+
+    return () => {
+      window.removeEventListener("online", onlineListener);
+      window.removeEventListener("offline", offlineListener);
+    };
+  }
+});
+
+// Tự động refetch khi online lại
+onlineManager.subscribe(() => {
+  if (onlineManager.isOnline()) {
+    queryClient.refetchQueries({ type: "active" });
+  }
 });

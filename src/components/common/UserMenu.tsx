@@ -1,5 +1,6 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
-import { Article, Logout, Person } from "@mui/icons-material";
+import { Article, Logout } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -118,7 +119,7 @@ export default function UserMenu() {
           </Box>
         )}
         <Divider />
-        <MenuItem onClick={() => navigate("/posts")}>
+        <MenuItem onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}>
           <ListItemIcon>
             <Article fontSize="small" />
           </ListItemIcon>

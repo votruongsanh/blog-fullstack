@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
 import { Article, Logout, Menu, Person } from "@mui/icons-material";
 import {
@@ -27,7 +28,6 @@ export default function MobileMenu() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
     setMobileOpen(false);
   };
 
@@ -43,7 +43,7 @@ export default function MobileMenu() {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  navigate("/login");
+                  navigate(ROUTE_PAGES.AUTH.LOGIN);
                   setMobileOpen(false);
                 }}
               >
@@ -56,7 +56,7 @@ export default function MobileMenu() {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  navigate("/register");
+                  navigate(ROUTE_PAGES.AUTH.REGISTER);
                   setMobileOpen(false);
                 }}
               >
@@ -72,7 +72,7 @@ export default function MobileMenu() {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  navigate("/posts");
+                  navigate(ROUTE_PAGES.POSTS.LIST);
                   setMobileOpen(false);
                 }}
               >

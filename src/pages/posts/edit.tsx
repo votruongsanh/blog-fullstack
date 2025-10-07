@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useUpdatePost } from "@/hooks/usePosts";
 import type { PostRequest } from "@/interface/postsInterface";
 import { queryClient } from "@/lib/react-query";
@@ -66,7 +67,7 @@ export default function EditPost() {
       if (event?.type === "removed") {
         const [key, postId] = event.query.queryKey;
         if (key === "post" && postId === id) {
-          navigate("/posts", { replace: true });
+          navigate(ROUTE_PAGES.POSTS.LIST, { replace: true });
         }
       }
     });
@@ -83,7 +84,7 @@ export default function EditPost() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/posts")}
+          onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
         >
           Back to List
         </Button>
@@ -124,7 +125,7 @@ export default function EditPost() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(`/posts/${id}`)}
+          onClick={() => navigate(ROUTE_PAGES.POSTS.DETAIL(id!))}
           sx={{
             textTransform: "none",
             borderRadius: 2,
@@ -207,7 +208,7 @@ export default function EditPost() {
               >
                 <Button
                   variant="outlined"
-                  onClick={() => navigate(`/posts/${id}`)}
+                  onClick={() => navigate(ROUTE_PAGES.POSTS.DETAIL(id!))}
                   disabled={isSubmitting || isPending}
                   fullWidth={isMobile}
                   sx={{

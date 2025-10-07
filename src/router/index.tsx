@@ -1,5 +1,6 @@
 import Loading from "@/components/common/Loading";
 import RootLayout from "@/components/common/RootLayout";
+import { ROUTE_PAGES } from "@/config/routePage";
 import { editPostLoader } from "@/loaders/postLoader";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
@@ -34,32 +35,32 @@ export const routes: RouteObject[] = [
         ],
       },
       {
-        // loader: protectedLoader,
+        path: ROUTE_PAGES.POSTS.LIST,
         element: <ProtectedRoute />,
         children: [
           {
-            path: "posts",
+            index: true,
             lazy: async () => {
               const mod = await import("@/pages/posts/list");
               return { Component: mod.default };
             },
           },
           {
-            path: "create",
+            path: ROUTE_PAGES.POSTS.CREATE,
             lazy: async () => {
               const mod = await import("@/pages/posts/create");
               return { Component: mod.default };
             },
           },
           {
-            path: "posts/:id",
+            path: ROUTE_PAGES.POSTS.DETAIL(":id"),
             lazy: async () => {
               const mod = await import("@/pages/posts/detail");
               return { Component: mod.default };
             },
           },
           {
-            path: "posts/:id/edit",
+            path: ROUTE_PAGES.POSTS.EDIT(":id"),
             lazy: async () => {
               const mod = await import("@/pages/posts/edit");
               return {

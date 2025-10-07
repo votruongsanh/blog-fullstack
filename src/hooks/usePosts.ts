@@ -1,9 +1,11 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import type {
   Post,
   PostRequest,
   PostsResponse,
 } from "@/interface/postsInterface";
 import { postService } from "@/services/postService";
+import { deepClone } from "@/utils/format";
 import {
   keepPreviousData,
   useMutation,
@@ -12,7 +14,6 @@ import {
 } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useAuth } from "./useAuth";
-import { deepClone } from "@/utils/format";
 
 // -------------------
 // Posts list with pagination
@@ -76,7 +77,10 @@ export const useCreatePost = () => {
     Post,
     unknown,
     PostRequest,
-    { prevQueries?: Array<[readonly unknown[], unknown]> }
+    {
+      prevQueries?: Array<[readonly unknown[], unknown]>;
+      tempId?: string;
+    }
   >({
     mutationFn: (body: PostRequest) => postService.createPost(body),
     onMutate: async (newPost: PostRequest) => {
@@ -131,18 +135,52 @@ export const useCreatePost = () => {
         );
       });
 
-      return { prevQueries };
+      return { prevQueries, tempId };
     },
     onError: (_err, _newPost, context) => {
       context?.prevQueries?.forEach(([key, snapshot]) => {
         qc.setQueryData(key as readonly unknown[], snapshot);
       });
     },
-    onSuccess: (createdPost: Post, _newPost, _context) => {
-      navigate(`/posts/${createdPost.id}`, { replace: true });
+    onSuccess: (createdPost: Post, _newPost, context) => {
+      console.log("createdPost", createdPost);
+      console.log("_newPost", _newPost);
+      console.log("context", context);
+
+      // CRITICAL: Cập nhật cache với ID thật - Thay thế optimistic post
+      const { tempId, prevQueries } = context || {
+        tempId: "",
+        prevQueries: [],
+      };
+      if (tempId && prevQueries) {
+        prevQueries.forEach(([key, _snapshot]) => {
+          const currentData = qc.getQueryData<PostsResponse>(key);
+          if (!currentData || !isPostsResponse(currentData)) return;
+
+          // Tìm và thay optimistic post bằng real post (dựa trên tempId)
+          const updatedPosts = currentData.posts.map(
+            (post) =>
+              post.id === tempId
+                ? { ...createdPost, author: post.author }
+                : post // Giữ author nếu cần
+          );
+
+          // Update total nếu cần (nhưng vì success, total đã +1 ở optimistic)
+          qc.setQueryData(key as readonly unknown[], {
+            ...currentData,
+            posts: updatedPosts,
+          });
+        });
+      }
+      // Navigate sau khi update cache
+      navigate(ROUTE_PAGES.POSTS.DETAIL(createdPost.id), { replace: true });
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["posts"] });
+      qc.invalidateQueries({
+        queryKey: ["posts"],
+        refetchType: "active", // Chỉ refetch queries đang active (nhanh hơn)
+        exact: false, // Invalidate tất cả matching ["posts"]
+      });
     },
   });
 };
@@ -177,11 +215,9 @@ export const useUpdatePost = () => {
           ([key, d]) =>
             [key, d ? deepClone(d) : d] as [readonly unknown[], unknown]
         );
-      console.log("prevQueries", prevQueries);
 
       // 3. Snapshot detail post (type as Post | undefined để match context)
       const prevDetail = qc.getQueryData<Post>(["post", id]);
-      console.log("prevDetail", prevDetail);
 
       // 4. Tạo optimistic post (thay thế với data mới) - Fix: Set id explicit, fallback nếu prevDetail undefined
       const optimisticPost: Post = {
@@ -194,13 +230,10 @@ export const useUpdatePost = () => {
           ? {}
           : { authorId: "", createdAt: new Date().toISOString() }), // Thêm fallback nếu cần
       } as Post;
-      console.log("optimisticPost", optimisticPost);
+
       // 5. Update list caches (thay thế postId trong posts array)
       prevQueries.forEach(([key, snapshot]) => {
-        console.log("key", key);
-        console.log("snapshot", snapshot);
         if (!snapshot || !isPostsResponse(snapshot)) return;
-        console.log("check snapshot", !snapshot || !isPostsResponse(snapshot));
 
         const oldData = snapshot as PostsResponse;
         // Không thay đổi total/totalPages (update không ảnh hưởng count)
@@ -234,7 +267,7 @@ export const useUpdatePost = () => {
     },
     onSuccess: (updatedPost, _newPost, _context) => {
       // Không invalidate ở đây (di chuyển vào onSettled)
-      navigate(`/posts/${updatedPost.id}`);
+      navigate(ROUTE_PAGES.POSTS.DETAIL(updatedPost.id));
     },
     onSettled: (_data, _error, variables, _context) => {
       const { id } = variables; // Lấy id từ variables
@@ -313,7 +346,7 @@ export const useDeletePost = () => {
       }
     },
     onSuccess: (_deletedPost, _id, _context) => {
-      navigate("/posts");
+      navigate(ROUTE_PAGES.POSTS.LIST);
     },
     onSettled: (_data, _error, id, _context) => {
       qc.invalidateQueries({ queryKey: ["posts"] });

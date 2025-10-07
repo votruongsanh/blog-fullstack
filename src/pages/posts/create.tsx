@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useCreatePost } from "@/hooks/usePosts";
 import type { PostRequest } from "@/interface/postsInterface";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -74,7 +75,7 @@ export default function CreatePost() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/posts")}
+          onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
           sx={{
             textTransform: "none",
             borderRadius: 2,
@@ -111,7 +112,7 @@ export default function CreatePost() {
                     label="Title"
                     placeholder="Enter an engaging title for your article..."
                     fullWidth
-                    required
+                    // required
                     error={!!errors.title}
                     helperText={errors.title?.message}
                     disabled={isSubmitting || createMutation.isPending}
@@ -160,7 +161,7 @@ export default function CreatePost() {
               >
                 <Button
                   variant="outlined"
-                  onClick={() => navigate("/posts")}
+                  onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
                   disabled={isSubmitting || createMutation.isPending}
                   fullWidth={isMobile}
                   sx={{

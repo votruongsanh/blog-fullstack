@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
 import { usePosts } from "@/hooks/usePosts";
 import { formatDate } from "@/utils/format";
@@ -32,7 +33,7 @@ export default function PostsList() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { isAuthenticated } = useAuth();
 
-  const { data, isLoading, error, isFetching } = usePosts(page, 10);
+  const { data, isLoading, error } = usePosts(page, 10);
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
@@ -70,14 +71,6 @@ export default function PostsList() {
             >
               📝 Posts
             </Typography>
-            {/* {isFetching && (
-              <Chip
-                label="Syncing..."
-                size="small"
-                color="info"
-                sx={{ animation: "pulse 1.5s ease-in-out infinite" }}
-              />
-            )} */}
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             {isLoading ? (
@@ -92,7 +85,7 @@ export default function PostsList() {
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
-            onClick={() => navigate("/posts/create")}
+            onClick={() => navigate(ROUTE_PAGES.POSTS.CREATE)}
             fullWidth={isMobile}
             sx={{
               px: 3,
@@ -214,7 +207,9 @@ export default function PostsList() {
                   {isMobile ? (
                     <IconButton
                       color="primary"
-                      onClick={() => navigate(`/posts/${post.id}`)}
+                      onClick={() =>
+                        navigate(ROUTE_PAGES.POSTS.DETAIL(post.id))
+                      }
                       sx={{
                         bgcolor: "primary.main",
                         color: "white",
@@ -229,7 +224,9 @@ export default function PostsList() {
                     <Button
                       variant="contained"
                       startIcon={<VisibilityIcon />}
-                      onClick={() => navigate(`/posts/${post.id}`)}
+                      onClick={() =>
+                        navigate(ROUTE_PAGES.POSTS.DETAIL(post.id))
+                      }
                       sx={{
                         textTransform: "none",
                         borderRadius: 2,
@@ -291,7 +288,7 @@ export default function PostsList() {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => navigate("/posts/create")}
+              onClick={() => navigate(ROUTE_PAGES.POSTS.CREATE)}
             >
               Create First Post
             </Button>
