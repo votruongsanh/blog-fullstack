@@ -1,5 +1,5 @@
+import { useAuth } from "@/hooks/useAuth";
 import { usePosts } from "@/hooks/usePosts";
-import { isAuthenticated } from "@/utils/authUtils";
 import { formatDate } from "@/utils/format";
 import AddIcon from "@mui/icons-material/Add";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -30,7 +30,7 @@ export default function PostsList() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isAuth = isAuthenticated();
+  const { isAuthenticated } = useAuth();
 
   const { data, isLoading, error, isFetching } = usePosts(page, 10);
 
@@ -87,7 +87,7 @@ export default function PostsList() {
             )}
           </Typography>
         </Box>
-        {isAuth && (
+        {isAuthenticated && (
           <Button
             variant="contained"
             color="primary"
@@ -287,7 +287,7 @@ export default function PostsList() {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Be the first to create a post!
           </Typography>
-          {isAuth && (
+          {isAuthenticated && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}

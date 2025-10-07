@@ -1,9 +1,7 @@
-import { isAuthenticated } from "@/utils/authUtils";
+import { isAuthenticated } from "@/lib/tokenService";
 import { redirect } from "react-router-dom";
 
 export const protectedLoader = async ({ request }: { request: Request }) => {
-  console.log("Protected loader");
-  console.log("Is authenticated", isAuthenticated());
   if (!isAuthenticated()) {
     const redirectUrl = new URL(request.url);
     const currentPath = redirectUrl.pathname + redirectUrl.search;

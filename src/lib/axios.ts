@@ -1,33 +1,26 @@
-import { clearAuth, getToken } from "@/utils/authUtils";
 import axios from "axios";
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+import { clearTokens, getAccessToken } from "./tokenService";
 
 const axiosClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 axiosClient.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const token = getAccessToken();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (!navigator.onLine) {
+    return Promise.reject(new Error("Offline"));
   }
   return config;
 });
 
 axiosClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      clearAuth();
-      return Promise.reject(error);
-    }
-    return Promise.reject(error);
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) clearTokens();
+    return Promise.reject(err);
   }
 );
 

@@ -11,6 +11,3 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/api/v1/posts/${id}`,
   },
 } as const;
-
-export const TOKEN_KEY = "auth_token";
-export const USER_KEY = "user_data";

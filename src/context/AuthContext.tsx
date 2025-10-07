@@ -1,5 +1,11 @@
+import {
+  clearTokens,
+  getAccessToken,
+  getUser,
+  setAccessToken,
+  setUserLocalStorage,
+} from "@/lib/tokenService";
 import { createContext, type ReactNode, useEffect, useState } from "react";
-import { TOKEN_KEY, USER_KEY } from "../config/api";
 import type {
   LoginRequest,
   RegisterRequest,
@@ -35,21 +41,19 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Check if user is already logged in
-    const token = localStorage.getItem(TOKEN_KEY);
-    const userData = localStorage.getItem(USER_KEY);
+    const token = getAccessToken();
+    const userData = getUser();
 
     if (token && userData) {
       try {
         if (isTokenExpired(token)) {
-          localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(USER_KEY);
+          clearTokens();
           setUser(null);
         } else {
           setUser(JSON.parse(userData));
         }
       } catch {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
+        clearTokens();
         setUser(null);
       }
     }
@@ -58,21 +62,20 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginRequest) => {
     const response = await authService.login(data);
-    localStorage.setItem(TOKEN_KEY, response.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+    setAccessToken(response.accessToken);
+    setUserLocalStorage(JSON.stringify(response.user));
     setUser(response.user);
   };
 
   const register = async (data: RegisterRequest) => {
     const response = await authService.register(data);
-    localStorage.setItem(TOKEN_KEY, response.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+    setAccessToken(response.accessToken);
+    setUserLocalStorage(JSON.stringify(response.user));
     setUser(response.user);
   };
 
   const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    clearTokens();
     setUser(null);
   };
 

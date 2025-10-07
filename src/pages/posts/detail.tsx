@@ -1,7 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useDeletePost, usePost } from "@/hooks/usePosts";
 import { queryClient } from "@/lib/react-query";
-import { isAuthenticated } from "@/utils/authUtils";
 import { formatDate } from "@/utils/format";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -37,7 +36,7 @@ export default function PostDetail() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isAuth = isAuthenticated();
+  const { isAuthenticated } = useAuth();
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
   // Get current user
@@ -219,7 +218,7 @@ export default function PostDetail() {
         </CardContent>
 
         {/* Action Buttons (Only for owner) */}
-        {isAuth && isOwner && (
+        {isAuthenticated && isOwner && (
           <Box
             sx={{
               p: { xs: 2, sm: 3 },
