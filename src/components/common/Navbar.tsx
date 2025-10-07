@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
 import {
   AppBar,
@@ -8,9 +9,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router";
+import ColorModeIconDropdown from "./ColorModeToggle";
 import MobileMenu from "./MobileMenu";
 import UserMenu from "./UserMenu";
-import ColorModeIconDropdown from "./ColorModeToggle";
 
 export default function Navbar() {
   const { isAuthenticated } = useAuth();
@@ -75,7 +76,7 @@ export default function Navbar() {
                     color="primary"
                     variant="contained"
                     size="small"
-                    onClick={() => navigate("/register")}
+                    onClick={() => navigate(ROUTE_PAGES.AUTH.REGISTER)}
                     sx={{ borderRadius: 2, textTransform: "none" }}
                   >
                     Register

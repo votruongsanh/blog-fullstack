@@ -90,7 +90,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   // ---- Logout ----
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     clearTokens();
     setOptimisticUser(null);
 
@@ -99,10 +99,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       queryKey: ["auth"],
       refetchType: "none",
     });
-  }, [queryClient]);
+  };
 
   // ✅ Auto update isAuthenticated in real time
-  const currentUser = useMemo(() => authUser ?? null, [authUser]);
+  const currentUser = useMemo(
+    () => optimisticUser ?? authUser ?? null,
+    [optimisticUser, authUser]
+  );
+
+  console.log("authUser", authUser);
+  console.log("optimisticUser", optimisticUser);
+
   return (
     <AuthContext.Provider
       value={{

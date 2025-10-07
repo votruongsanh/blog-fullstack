@@ -41,7 +41,6 @@ const Login = () => {
     try {
       setError("");
       await login(data);
-      navigate(from, { replace: true });
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const error = err as { response?: { data?: { message?: string } } };
