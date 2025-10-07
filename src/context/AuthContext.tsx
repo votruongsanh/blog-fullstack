@@ -93,12 +93,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleLogout = () => {
     clearTokens();
     setOptimisticUser(null);
-
-    queryClient.setQueryData(["auth"], null);
-    queryClient.invalidateQueries({
-      queryKey: ["auth"],
-      refetchType: "none",
-    });
+    queryClient.removeQueries({ queryKey: ["auth"] });
   };
 
   // ✅ Auto update isAuthenticated in real time
