@@ -10,5 +10,6 @@ export const ROUTE_PAGES = {
     CREATE: "/posts/create",
     DETAIL: (id: string | number) => `/posts/${id}`,
     EDIT: (id: string | number) => `/posts/${id}/edit`,
+    MY_POSTS: "/my-posts",
   },
 } as const;

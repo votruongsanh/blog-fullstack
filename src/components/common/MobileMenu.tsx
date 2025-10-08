@@ -1,6 +1,7 @@
 import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
 import {
+  AddLinkOutlined,
   Article,
   Home,
   Image,
@@ -23,20 +24,98 @@ import {
 import React from "react";
 import { useNavigate } from "react-router";
 
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  divider?: boolean;
+}
+
 export default function MobileMenu() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleLogout = () => {
-    logout();
-    setMobileOpen(false);
-  };
+  const menuItems: MenuItem[] = isAuthenticated
+    ? [
+        {
+          id: "home",
+          label: "Home",
+          icon: <Home />,
+          onClick: () => {
+            navigate(ROUTE_PAGES.HOME);
+            setMobileOpen(false);
+          },
+        },
+        {
+          id: "gallery",
+          label: "Gallery",
+          icon: <Image />,
+          onClick: () => {
+            navigate(ROUTE_PAGES.GALLERY);
+            setMobileOpen(false);
+          },
+        },
+        {
+          id: "posts",
+          label: "Posts",
+          icon: <Article />,
+          onClick: () => {
+            navigate(ROUTE_PAGES.POSTS.LIST);
+            setMobileOpen(false);
+          },
+        },
+        {
+          id: "my-posts",
+          label: "My Posts",
+          icon: <AddLinkOutlined />,
+          onClick: () => {
+            navigate(ROUTE_PAGES.POSTS.MY_POSTS);
+            setMobileOpen(false);
+          },
+        },
+        {
+          id: "divider",
+          label: "",
+          icon: <></>,
+          onClick: () => {},
+          divider: true,
+        },
+        {
+          id: "logout",
+          label: "Logout",
+          icon: <Logout />,
+          onClick: () => {
+            logout();
+            setMobileOpen(false);
+          },
+        },
+      ]
+    : [
+        {
+          id: "login",
+          label: "Login",
+          icon: <Person />,
+          onClick: () => {
+            navigate(ROUTE_PAGES.AUTH.LOGIN);
+            setMobileOpen(false);
+          },
+        },
+        {
+          id: "register",
+          label: "Register",
+          icon: <Article />,
+          onClick: () => {
+            navigate(ROUTE_PAGES.AUTH.REGISTER);
+            setMobileOpen(false);
+          },
+        },
+      ];
 
   const drawer = (
     <Box sx={{ width: 250 }}>
@@ -45,86 +124,17 @@ export default function MobileMenu() {
       </Typography>
       <Divider />
       <List>
-        {!isAuthenticated ? (
-          <>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(ROUTE_PAGES.AUTH.LOGIN);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon>
-                  <Person />
-                </ListItemIcon>
-                <ListItemText primary="Login" />
+        {menuItems.map((item) =>
+          item.divider ? (
+            <Divider key={item.id} sx={{ my: 1 }} />
+          ) : (
+            <ListItem key={item.id} disablePadding>
+              <ListItemButton onClick={item.onClick}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
               </ListItemButton>
             </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(ROUTE_PAGES.AUTH.REGISTER);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon>
-                  <Article />
-                </ListItemIcon>
-                <ListItemText primary="Register" />
-              </ListItemButton>
-            </ListItem>
-          </>
-        ) : (
-          <>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(ROUTE_PAGES.HOME);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon>
-                  <Home />
-                </ListItemIcon>
-                <ListItemText primary="Home" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(ROUTE_PAGES.GALLERY);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon>
-                  <Image />
-                </ListItemIcon>
-                <ListItemText primary="Gallery" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(ROUTE_PAGES.POSTS.LIST);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon>
-                  <Article />
-                </ListItemIcon>
-                <ListItemText primary="My Posts" />
-              </ListItemButton>
-            </ListItem>
-            <Divider />
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleLogout}>
-                <ListItemIcon>
-                  <Logout />
-                </ListItemIcon>
-                <ListItemText primary="Logout" />
-              </ListItemButton>
-            </ListItem>
-          </>
+          )
         )}
       </List>
     </Box>
