@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
 import type { LoginRequest } from "@/interface/userInterface";
 import { loginSchema } from "@/schemas/authSchemas";
@@ -14,16 +15,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 const Login = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string>("");
-
-  const location = useLocation();
-  const from =
-    (location.state as { from?: Location })?.from?.pathname || "/home";
 
   const {
     register,
@@ -45,11 +41,10 @@ const Login = () => {
       if (err && typeof err === "object" && "response" in err) {
         const error = err as { response?: { data?: { message?: string } } };
         setError(
-          error.response?.data?.message ||
-            "Đăng nhập thất bại. Vui lòng thử lại."
+          error.response?.data?.message || "Login failed. Please try again."
         );
       } else {
-        setError("Đăng nhập thất bại. Vui lòng thử lại.");
+        setError("Login failed. Please try again.");
       }
     }
   };
@@ -75,7 +70,7 @@ const Login = () => {
           }}
         >
           <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-            Đăng Nhập
+            Login
           </Typography>
 
           {error && (
@@ -104,7 +99,7 @@ const Login = () => {
             <TextField
               margin="normal"
               fullWidth
-              label="Mật khẩu"
+              label="Password"
               type="password"
               id="password"
               autoComplete="current-password"
@@ -120,12 +115,16 @@ const Login = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Đang đăng nhập..." : "Đăng Nhập"}
+              {isSubmitting ? "Logging in..." : "Login"}
             </Button>
 
             <Box sx={{ textAlign: "center" }}>
-              <Link component={RouterLink} to="/register" variant="body2">
-                Chưa có tài khoản? Đăng ký ngay
+              <Link
+                component={RouterLink}
+                to={ROUTE_PAGES.AUTH.REGISTER}
+                variant="body2"
+              >
+                Don't have an account? Register now
               </Link>
             </Box>
           </Box>

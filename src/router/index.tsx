@@ -4,22 +4,19 @@ import { ROUTE_PAGES } from "@/config/routePage";
 import { editPostLoader } from "@/loaders/postLoader";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
-import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
+import { createBrowserRouter, type RouteObject } from "react-router";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 
 export const routes: RouteObject[] = [
   {
-    path: "/",
+    path: ROUTE_PAGES.HOME,
     element: <RootLayout />,
     hydrateFallbackElement: <Loading />,
     children: [
       {
         index: true,
-        element: <Navigate to="/home" replace />,
-      },
-      {
-        path: "home",
+        path: ROUTE_PAGES.HOME,
         lazy: async () => {
           const mod = await import("@/pages/home/Home");
           return {
@@ -28,9 +25,9 @@ export const routes: RouteObject[] = [
         },
       },
       {
-        path: "gallery",
+        path: ROUTE_PAGES.GALLERY,
         lazy: async () => {
-          const mod = await import("@/pages/posts/Gallery");
+          const mod = await import("@/pages/gallery/Gallery");
           return {
             Component: mod.default,
           };
@@ -39,8 +36,8 @@ export const routes: RouteObject[] = [
       {
         element: <PublicRoute />,
         children: [
-          { path: "login", Component: Login },
-          { path: "register", Component: Register },
+          { path: ROUTE_PAGES.AUTH.LOGIN, Component: Login },
+          { path: ROUTE_PAGES.AUTH.REGISTER, Component: Register },
         ],
       },
       {

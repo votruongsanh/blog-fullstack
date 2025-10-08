@@ -1,6 +1,13 @@
 import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
-import { Article, Home, Image, Logout, Menu, Person } from "@mui/icons-material";
+import {
+  Article,
+  Home,
+  Image,
+  Logout,
+  Menu,
+  Person,
+} from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -72,7 +79,7 @@ export default function MobileMenu() {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  navigate("/home");
+                  navigate(ROUTE_PAGES.HOME);
                   setMobileOpen(false);
                 }}
               >

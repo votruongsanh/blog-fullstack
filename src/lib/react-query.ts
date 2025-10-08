@@ -1,9 +1,10 @@
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import {
   MutationCache,
-  onlineManager,
   QueryCache,
   QueryClient,
+  onlineManager,
+  focusManager,
 } from "@tanstack/react-query";
 
 // ------------------------------
@@ -12,51 +13,43 @@ import {
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
-      console.error("Global Query Error:", (error as Error).message);
+      console.error("[Query Error]:", (error as Error).message);
     },
   }),
   mutationCache: new MutationCache({
-    onError: (error, mutation) => {
-      console.error(
-        "Global Mutation Error:",
-        (error as Error).message,
-        mutation
-      );
+    onError: (error, _variables, _context, mutation) => {
+      console.error("[Mutation Error]:", (error as Error).message, mutation);
     },
   }),
   defaultOptions: {
     queries: {
+      // ❗ Không refetch nếu data còn "fresh"
+      refetchOnMount: false,
+      refetchOnWindowFocus: "always",
+      refetchOnReconnect: "always",
+      // ✅ Performance tuning
+      staleTime: 2 * 60 * 1000, // 2 phút
+      gcTime: 10 * 60 * 1000, // 10 phút
+
+      // ✅ Behavior tuning
+      networkMode: "online",
+
+      // ✅ Retry có điều kiện, tránh spam
       retry: (failureCount, error: unknown) => {
         const axiosError = error as { response?: { status?: number } };
-        if (
-          axiosError?.response?.status &&
-          axiosError.response.status >= 400 &&
-          axiosError.response.status < 500
-        ) {
-          return false; // không retry lỗi client
-        }
+        const status = axiosError?.response?.status;
+        if (status && status >= 400 && status < 500) return false;
         return failureCount < 3;
       },
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
-      staleTime: 2 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
-      refetchOnMount: "always",
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
     },
     mutations: {
-      retry: (failureCount, error: unknown) => {
-        const axiosError = error as { response?: { status?: number } };
-        if (
-          axiosError?.response?.status &&
-          axiosError.response.status >= 400 &&
-          axiosError.response.status < 500
-        ) {
-          return false;
-        }
-        return failureCount < 1;
-      },
+      // ❗ Retry = 0 để tránh double action (POST/DELETE)
+      retry: false,
       networkMode: "online",
+      onError: (error) => {
+        console.error("[Global Mutation Error]:", (error as Error).message);
+      },
     },
   },
 });
@@ -69,24 +62,15 @@ broadcastQueryClient({
   broadcastChannel: "blog-app",
 });
 
-onlineManager.setEventListener((setOnline) => {
-  if (typeof window !== "undefined") {
-    const onlineListener = () => setOnline(true);
-    const offlineListener = () => setOnline(false);
+// ------------------------------
+// Optional: Network + Focus Manager (nâng cao)
+// ------------------------------
 
-    window.addEventListener("online", onlineListener);
-    window.addEventListener("offline", offlineListener);
+// Sync online/offline chính xác hơn trong browser
+window.addEventListener("online", () => onlineManager.setOnline(true));
+window.addEventListener("offline", () => onlineManager.setOnline(false));
 
-    return () => {
-      window.removeEventListener("online", onlineListener);
-      window.removeEventListener("offline", offlineListener);
-    };
-  }
-});
-
-// Tự động refetch khi online lại
-onlineManager.subscribe(() => {
-  if (onlineManager.isOnline()) {
-    queryClient.refetchQueries({ type: "active" });
-  }
+// Sync trạng thái focus giữa các tab
+document.addEventListener("visibilitychange", () => {
+  focusManager.setFocused(!document.hidden);
 });

@@ -44,7 +44,7 @@ export default function UserMenu() {
 
   return (
     <>
-      <Tooltip title="Tài khoản">
+      <Tooltip title="Profile">
         <IconButton
           onClick={handleClick}
           size="small"

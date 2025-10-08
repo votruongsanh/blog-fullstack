@@ -7,13 +7,7 @@ import {
   setUserLocalStorage,
 } from "@/lib/tokenService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  createContext,
-  useCallback,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useMemo, type ReactNode } from "react";
 import type {
   LoginRequest,
   RegisterRequest,
@@ -34,14 +28,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
-  const [optimisticUser, setOptimisticUser] = useState<Partial<User> | null>(
-    null
-  );
 
   // ---- Load user on app start ----
   const { data: authUser, isFetching } = useQuery<Partial<User> | null>({
     queryKey: ["auth"],
     queryFn: async () => {
+      console.log("queryFn auth ______refetch");
       const token = getAccessToken();
       const storedUser = getUser();
       if (!token || !storedUser) return null;
@@ -52,7 +44,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       return JSON.parse(storedUser);
     },
     staleTime: Infinity,
-    gcTime: Infinity,
+    gcTime: 2 * 60 * 1000,
   });
 
   // ---- Login ----
@@ -62,7 +54,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(res.accessToken);
       setUserLocalStorage(JSON.stringify(res.user));
 
-      setOptimisticUser(res.user);
       queryClient.setQueryData(["auth"], res.user);
       queryClient.invalidateQueries({
         queryKey: ["auth"],
@@ -79,7 +70,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(res.accessToken);
       setUserLocalStorage(JSON.stringify(res.user));
 
-      setOptimisticUser(res.user);
       queryClient.setQueryData(["auth"], res.user);
       queryClient.invalidateQueries({
         queryKey: ["auth"],
@@ -90,20 +80,23 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   // ---- Logout ----
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
+    // 1. Clear storage sync
     clearTokens();
-    setOptimisticUser(null);
-    queryClient.removeQueries({ queryKey: ["auth"] });
-  };
+    // 2. Optimistic null immediate
+    // 3. Xóa cache
+    queryClient.setQueryData(["auth"], null);
+    queryClient.invalidateQueries({
+      queryKey: ["auth"],
+      refetchType: "active",
+    });
+  }, [queryClient]);
 
   // ✅ Auto update isAuthenticated in real time
-  const currentUser = useMemo(
-    () => optimisticUser ?? authUser ?? null,
-    [optimisticUser, authUser]
-  );
-
+  const currentUser = useMemo(() => authUser ?? null, [authUser]);
+  // Debug logs
   console.log("authUser", authUser);
-  console.log("optimisticUser", optimisticUser);
+  console.log("currentUser", currentUser);
 
   return (
     <AuthContext.Provider

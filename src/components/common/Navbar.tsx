@@ -43,9 +43,9 @@ export default function Navbar() {
               gap: 1,
               color: "inherit",
             }}
-            onClick={() => navigate(isAuthenticated ? "/home" : "/")}
+            onClick={() => navigate(ROUTE_PAGES.HOME)}
           >
-            Blog App
+            HyperX
           </Typography>
 
           {/* Desktop Navigation Menu - Centered (ẩn ở mobile) */}
@@ -60,7 +60,7 @@ export default function Navbar() {
           >
             <Button
               color="inherit"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate(ROUTE_PAGES.HOME)}
               sx={{ textTransform: "none" }}
             >
               Home
@@ -72,6 +72,15 @@ export default function Navbar() {
             >
               Gallery
             </Button>
+            {isAuthenticated && (
+              <Button
+                color="inherit"
+                onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
+                sx={{ textTransform: "none" }}
+              >
+                Posts
+              </Button>
+            )}
           </Box>
 
           {/* Spacer for mobile - ensures right side stays right-aligned */}
@@ -95,7 +104,7 @@ export default function Navbar() {
                     color="inherit"
                     variant="outlined"
                     size="small"
-                    onClick={() => navigate("/login")}
+                    onClick={() => navigate(ROUTE_PAGES.AUTH.LOGIN)}
                     sx={{ borderRadius: 2, textTransform: "none" }}
                   >
                     Login
