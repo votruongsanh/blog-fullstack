@@ -39,7 +39,6 @@ const Register = () => {
     try {
       setError("");
       await registerUser(data);
-      navigate("/login");
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const error = err as { response?: { data?: { message?: string } } };

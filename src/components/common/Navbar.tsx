@@ -13,9 +13,82 @@ import ColorModeIconDropdown from "./ColorModeToggle";
 import MobileMenu from "./MobileMenu";
 import UserMenu from "./UserMenu";
 
+interface NavigationItem {
+  id: string;
+  label: string;
+  route: string;
+  requiresAuth?: boolean;
+}
+
+interface ActionItem {
+  id: string;
+  component: React.ReactNode;
+}
+
 export default function Navbar() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Define navigation items
+  const navigationItems: NavigationItem[] = [
+    {
+      id: "home",
+      label: "Home",
+      route: ROUTE_PAGES.HOME,
+    },
+    {
+      id: "gallery",
+      label: "Gallery",
+      route: ROUTE_PAGES.GALLERY,
+    },
+    {
+      id: "posts",
+      label: "Posts",
+      route: ROUTE_PAGES.POSTS.LIST,
+      requiresAuth: true,
+    },
+  ];
+
+  // Define action items based on authentication status
+  const actionItems: ActionItem[] = isAuthenticated
+    ? [
+        {
+          id: "user-menu",
+          component: <UserMenu key="user-menu" />,
+        },
+      ]
+    : [
+        {
+          id: "login",
+          component: (
+            <Button
+              key="login"
+              color="inherit"
+              variant="outlined"
+              size="small"
+              onClick={() => navigate(ROUTE_PAGES.AUTH.LOGIN)}
+              sx={{ borderRadius: 2, textTransform: "none" }}
+            >
+              Login
+            </Button>
+          ),
+        },
+        {
+          id: "register",
+          component: (
+            <Button
+              key="register"
+              color="primary"
+              variant="contained"
+              size="small"
+              onClick={() => navigate(ROUTE_PAGES.AUTH.REGISTER)}
+              sx={{ borderRadius: 2, textTransform: "none" }}
+            >
+              Register
+            </Button>
+          ),
+        },
+      ];
 
   return (
     <AppBar
@@ -58,29 +131,23 @@ export default function Navbar() {
               justifyContent: "center",
             }}
           >
-            <Button
-              color="inherit"
-              onClick={() => navigate(ROUTE_PAGES.HOME)}
-              sx={{ textTransform: "none" }}
-            >
-              Home
-            </Button>
-            <Button
-              color="inherit"
-              onClick={() => navigate(ROUTE_PAGES.GALLERY)}
-              sx={{ textTransform: "none" }}
-            >
-              Gallery
-            </Button>
-            {isAuthenticated && (
-              <Button
-                color="inherit"
-                onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
-                sx={{ textTransform: "none" }}
-              >
-                Posts
-              </Button>
-            )}
+            {navigationItems.map((item) => {
+              // Skip items that require auth if user is not authenticated
+              if (item.requiresAuth && !isAuthenticated) {
+                return null;
+              }
+
+              return (
+                <Button
+                  key={item.id}
+                  color="inherit"
+                  onClick={() => navigate(item.route)}
+                  sx={{ textTransform: "none" }}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
           </Box>
 
           {/* Spacer for mobile - ensures right side stays right-aligned */}
@@ -98,32 +165,7 @@ export default function Navbar() {
                 gap: 1,
               }}
             >
-              {!isAuthenticated ? (
-                <>
-                  <Button
-                    color="inherit"
-                    variant="outlined"
-                    size="small"
-                    onClick={() => navigate(ROUTE_PAGES.AUTH.LOGIN)}
-                    sx={{ borderRadius: 2, textTransform: "none" }}
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    size="small"
-                    onClick={() => navigate(ROUTE_PAGES.AUTH.REGISTER)}
-                    sx={{ borderRadius: 2, textTransform: "none" }}
-                  >
-                    Register
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <UserMenu />
-                </>
-              )}
+              {actionItems.map((item) => item.component)}
             </Box>
 
             <ColorModeIconDropdown />

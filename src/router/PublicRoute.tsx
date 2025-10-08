@@ -1,3 +1,4 @@
+import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
 import { Box, CircularProgress } from "@mui/material";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
@@ -21,7 +22,7 @@ export const PublicRoute = () => {
 
   if (isAuthenticated) {
     const redirectTo =
-      new URLSearchParams(location.search).get("redirect") || "/home";
+      new URLSearchParams(location.search).get("redirect") || ROUTE_PAGES.HOME;
     return <Navigate to={redirectTo} replace />;
   }
 
