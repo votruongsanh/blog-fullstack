@@ -1,4 +1,15 @@
-import { blue, deepPurple, green, red, orange, cyan } from "@mui/material/colors";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import {
+  blue,
+  cyan,
+  deepPurple,
+  green,
+  orange,
+  red,
+} from "@mui/material/colors";
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
@@ -155,9 +166,10 @@ const theme = createTheme({
             backgroundColor: "#6b6b6b",
             minHeight: 24,
           },
-          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#8b8b8b",
-          },
+          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover":
+            {
+              backgroundColor: "#8b8b8b",
+            },
         },
       },
     },

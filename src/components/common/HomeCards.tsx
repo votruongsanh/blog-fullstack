@@ -62,24 +62,38 @@ export const PopularPostsCard: React.FC<PopularPostsCardProps> = ({
         flexDirection: "column",
       }}
     >
-      <CardHeader
-        title="Popular Posts"
-        titleTypographyProps={{
-          variant: "h6",
-          fontWeight: 600,
-        }}
-      />
+      <CardHeader title="Popular Posts" />
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {posts.map((post, index) => (
-            <Box key={post.id}>
+            <Box
+              key={post.id}
+              component={motion.div}
+              whileHover={{
+                scale: 1.02,
+                transition: { duration: 0.2 },
+              }}
+              sx={{
+                p: 2,
+                borderRadius: 1,
+                cursor: "pointer",
+                transition: "all 0.3s ease-in-out",
+                "&:hover": {
+                  backgroundColor: "action.hover",
+                  transform: "translateY(-2px)",
+                  boxShadow: 2,
+                },
+              }}
+            >
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
                 <Typography
                   variant="h6"
-                  color="primary"
-                  sx={{ minWidth: "24px" }}
+                  sx={{
+                    minWidth: "24px",
+                    color: "primary.main",
+                  }}
                 >
                   {index + 1}
                 </Typography>
@@ -103,7 +117,13 @@ export const PopularPostsCard: React.FC<PopularPostsCardProps> = ({
                   label={post.category}
                   size="small"
                   variant="outlined"
-                  sx={{ fontSize: "0.75rem" }}
+                  sx={{
+                    fontSize: "0.75rem",
+                    "&:hover": {
+                      backgroundColor: "primary.main",
+                      color: "primary.contrastText",
+                    },
+                  }}
                 />
                 <Typography variant="caption" color="text.secondary">
                   {post.views.toLocaleString()} views
@@ -131,24 +151,51 @@ export const LatestPostsCard: React.FC<LatestPostsCardProps> = ({ posts }) => {
         flexDirection: "column",
       }}
     >
-      <CardHeader
-        title="Latest Posts"
-        titleTypographyProps={{
-          variant: "h6",
-          fontWeight: 600,
-        }}
-      />
+      <CardHeader title="Latest Posts" />
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {posts.map((post) => (
-            <Box key={post.id}>
+            <Box
+              key={post.id}
+              component={motion.div}
+              whileHover={{
+                scale: 1.02,
+                transition: { duration: 0.2 },
+              }}
+              sx={{
+                p: 2,
+                borderRadius: 1,
+                cursor: "pointer",
+                transition: "all 0.3s ease-in-out",
+                "&:hover": {
+                  backgroundColor: "action.hover",
+                  transform: "translateY(-2px)",
+                  boxShadow: 2,
+                },
+              }}
+            >
               <Typography
                 variant="h6"
-                sx={{ fontSize: "1rem", fontWeight: 500, mb: 1 }}
+                sx={{
+                  fontSize: "1rem",
+                  fontWeight: 500,
+                  mb: 1,
+                  color: "text.primary",
+                }}
               >
                 {post.title}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  mb: 1,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
                 {post.excerpt}
               </Typography>
               <Box
@@ -164,7 +211,13 @@ export const LatestPostsCard: React.FC<LatestPostsCardProps> = ({ posts }) => {
                 <Chip
                   label={post.category}
                   size="small"
-                  sx={{ fontSize: "0.7rem" }}
+                  sx={{
+                    fontSize: "0.7rem",
+                    "&:hover": {
+                      backgroundColor: "secondary.main",
+                      color: "secondary.contrastText",
+                    },
+                  }}
                 />
               </Box>
             </Box>
@@ -205,33 +258,13 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({ stats }) => {
         flexDirection: "column",
         position: "relative",
         overflow: "hidden",
-        background:
-          "linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)",
-        border: "1px solid",
-        borderColor: "divider",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+        "&:hover": {
+          boxShadow: 4,
         },
       }}
     >
       <CardHeader
         title="Statistics"
-        titleTypographyProps={{
-          variant: "h6",
-          fontWeight: 600,
-          sx: {
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          },
-        }}
         sx={{
           pb: { xs: 1.5, sm: 2 },
           "& .MuiCardHeader-title": {
@@ -270,22 +303,18 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({ stats }) => {
                 stiffness: 100,
               }}
               whileHover={{
-                scale: 1.02,
+                scale: 1.05,
                 transition: { duration: 0.2 },
               }}
               sx={{
                 textAlign: "center",
                 p: { xs: 1.5, sm: 2 },
                 borderRadius: 1.5,
-                background: "rgba(255, 255, 255, 0.9)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid",
-                borderColor: "rgba(102, 126, 234, 0.1)",
+                backgroundColor: "background.paper",
                 transition: "all 0.3s ease-in-out",
                 "&:hover": {
-                  background: "rgba(102, 126, 234, 0.05)",
-                  borderColor: "rgba(102, 126, 234, 0.2)",
-                  boxShadow: "0 4px 15px rgba(102, 126, 234, 0.1)",
+                  backgroundColor: "action.hover",
+                  boxShadow: 3,
                 },
               }}
             >
@@ -298,9 +327,9 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({ stats }) => {
                     fontSize: { xs: 28, sm: 32, md: 36 },
                     p: { xs: 1, sm: 1.2, md: 1.4 },
                     borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${getIconColor(index)} 0%, ${getIconColorDark(index)} 100%)`,
-                    color: "white",
-                    boxShadow: `0 2px 8px ${getIconColor(index)}40`,
+                    backgroundColor: "primary.main",
+                    color: "primary.contrastText",
+                    boxShadow: 2,
                   },
                 }}
               >
@@ -319,11 +348,7 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({ stats }) => {
                 }}
                 sx={{
                   fontWeight: 700,
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  color: "text.primary",
                   mb: 0.5,
                   fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.75rem" },
                 }}
@@ -348,25 +373,4 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({ stats }) => {
       </CardContent>
     </Card>
   );
-};
-
-// Helper function for icon colors
-const getIconColor = (index: number) => {
-  const colors = [
-    "#667eea", // Blue
-    "#764ba2", // Purple
-    "#f093fb", // Pink
-    "#f5576c", // Red
-  ];
-  return colors[index] || "#667eea";
-};
-
-const getIconColorDark = (index: number) => {
-  const colors = [
-    "#5a67d8", // Dark Blue
-    "#6c5ce7", // Dark Purple
-    "#e056fd", // Dark Pink
-    "#e74c3c", // Dark Red
-  ];
-  return colors[index] || "#5a67d8";
 };

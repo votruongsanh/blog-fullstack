@@ -33,7 +33,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { data: authUser, isFetching } = useQuery<Partial<User> | null>({
     queryKey: ["auth"],
     queryFn: async () => {
-      console.log("queryFn auth ______refetch");
+      // console.log("queryFn auth ______refetch");
       const token = getAccessToken();
       const storedUser = getUser();
       if (!token || !storedUser) return null;
@@ -95,8 +95,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   // ✅ Auto update isAuthenticated in real time
   const currentUser = useMemo(() => authUser ?? null, [authUser]);
   // Debug logs
-  console.log("authUser", authUser);
-  console.log("currentUser", currentUser);
+  // console.log("authUser", authUser);
+  // console.log("currentUser", currentUser);
 
   return (
     <AuthContext.Provider
