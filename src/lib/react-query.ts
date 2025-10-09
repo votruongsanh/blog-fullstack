@@ -6,6 +6,17 @@ import {
   onlineManager,
   focusManager,
 } from "@tanstack/react-query";
+import axios from "axios";
+import { clearTokens } from "./tokenService";
+
+// Function xử lý 401 global cho queries và mutations
+const handleAuthError = (error: unknown) => {
+  if (axios.isAxiosError(error) && error.response?.status === 401) {
+    clearTokens();
+    // Invalidate auth query để trigger refetch và set user = null
+    queryClient.invalidateQueries({ queryKey: ["auth"] });
+  }
+};
 
 // ------------------------------
 // Query Client setup
@@ -14,11 +25,13 @@ export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       console.error("[Query Error]:", (error as Error).message);
+      handleAuthError(error);
     },
   }),
   mutationCache: new MutationCache({
     onError: (error, _variables, _context, mutation) => {
       console.error("[Mutation Error]:", (error as Error).message, mutation);
+      handleAuthError(error);
     },
   }),
   defaultOptions: {
@@ -47,9 +60,6 @@ export const queryClient = new QueryClient({
       // ❗ Retry = 0 để tránh double action (POST/DELETE)
       retry: false,
       networkMode: "online",
-      onError: (error) => {
-        console.error("[Global Mutation Error]:", (error as Error).message);
-      },
     },
   },
 });

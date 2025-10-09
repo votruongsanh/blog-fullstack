@@ -1,5 +1,5 @@
 import axios from "axios";
-import { clearTokens, getAccessToken } from "./tokenService";
+import { getAccessToken } from "./tokenService";
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
@@ -18,10 +18,7 @@ axiosClient.interceptors.request.use((config) => {
 
 axiosClient.interceptors.response.use(
   (res) => res,
-  (err) => {
-    if (err.response?.status === 401) clearTokens();
-    return Promise.reject(err);
-  }
+  (err) => Promise.reject(err)
 );
 
 export default axiosClient;
