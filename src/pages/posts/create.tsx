@@ -24,12 +24,12 @@ const schema = yup.object({
   title: yup
     .string()
     .required("Title is required")
-    .min(5, "Title must be at least 5 characters long")
+    .min(5, "Title must be at least 5 characters")
     .max(200, "Title cannot exceed 200 characters"),
   content: yup
     .string()
     .required("Content is required")
-    .min(20, "Content must be at least 20 characters long")
+    .min(20, "Content must be at least 20 characters")
     .max(10000, "Content cannot exceed 10000 characters"),
 });
 
@@ -42,22 +42,24 @@ export default function CreatePost() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
+    watch,
   } = useForm<PostRequest>({
     resolver: yupResolver(schema),
-    defaultValues: {
-      title: "",
-      content: "",
-    },
+    mode: "onTouched", // hiển thị lỗi sau khi blur
+    defaultValues: { title: "", content: "" },
   });
-  const createMutation = useCreatePost();
 
-  const onSubmit = (data: PostRequest) => {
-    createMutation.mutate(data);
-  };
+  const createMutation = useCreatePost();
+  const isDisabled = isSubmitting || createMutation.isPending;
+
+  const onSubmit = (data: PostRequest) => createMutation.mutate(data);
+
+  // Theo dõi realtime content để hiển thị số ký tự
+  const contentValue = watch("content", "");
 
   return (
     <Container maxWidth="md" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
-      {/* Header */}
+      {/* ---------------- HEADER ---------------- */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         alignItems={{ xs: "flex-start", sm: "center" }}
@@ -72,37 +74,30 @@ export default function CreatePost() {
         >
           ✍️ Create New Post
         </Typography>
+
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
-          sx={{
-            textTransform: "none",
-            borderRadius: 2,
-          }}
+          sx={{ textTransform: "none", borderRadius: 2 }}
         >
           Back
         </Button>
       </Stack>
 
-      {/* Error Alert */}
+      {/* ---------------- ERROR ALERT ---------------- */}
       {createMutation.isError && (
         <Alert severity="error" sx={{ mb: 3 }}>
           Can't create the post. Please try again later.
         </Alert>
       )}
 
-      {/* Form Card */}
-      <Card
-        sx={{
-          borderRadius: 3,
-          boxShadow: 4,
-        }}
-      >
+      {/* ---------------- FORM ---------------- */}
+      <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <Stack spacing={3}>
-              {/* Title Field */}
+              {/* ---------------- TITLE ---------------- */}
               <Controller
                 name="title"
                 control={control}
@@ -110,22 +105,18 @@ export default function CreatePost() {
                   <TextField
                     {...field}
                     label="Title"
-                    placeholder="Enter an engaging title for your article..."
+                    placeholder="Enter an engaging title..."
                     fullWidth
-                    // required
                     error={!!errors.title}
-                    helperText={errors.title?.message}
-                    disabled={isSubmitting || createMutation.isPending}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 2,
-                      },
-                    }}
+                    helperText={errors.title?.message || ""}
+                    disabled={isDisabled}
+                    inputProps={{ maxLength: 200 }}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                   />
                 )}
               />
 
-              {/* Content Field */}
+              {/* ---------------- CONTENT ---------------- */}
               <Controller
                 name="content"
                 control={control}
@@ -133,27 +124,23 @@ export default function CreatePost() {
                   <TextField
                     {...field}
                     label="Content"
-                    placeholder="Write detailed content for your article..."
+                    placeholder="Write detailed content..."
                     fullWidth
-                    required
                     multiline
                     rows={isMobile ? 10 : 15}
                     error={!!errors.content}
                     helperText={
                       errors.content?.message ||
-                      `${field.value.length}/10000 characters`
+                      `${contentValue.length}/10000 characters`
                     }
-                    disabled={isSubmitting || createMutation.isPending}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 2,
-                      },
-                    }}
+                    disabled={isDisabled}
+                    inputProps={{ maxLength: 10000 }}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                   />
                 )}
               />
 
-              {/* Action Buttons */}
+              {/* ---------------- ACTION BUTTONS ---------------- */}
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={2}
@@ -162,7 +149,7 @@ export default function CreatePost() {
                 <Button
                   variant="outlined"
                   onClick={() => navigate(ROUTE_PAGES.POSTS.LIST)}
-                  disabled={isSubmitting || createMutation.isPending}
+                  disabled={isDisabled}
                   fullWidth={isMobile}
                   sx={{
                     textTransform: "none",
@@ -174,12 +161,13 @@ export default function CreatePost() {
                 >
                   Cancel
                 </Button>
+
                 <Button
                   type="submit"
                   variant="contained"
                   color="primary"
                   startIcon={<SaveIcon />}
-                  disabled={isSubmitting || createMutation.isPending}
+                  disabled={isDisabled}
                   fullWidth={isMobile}
                   sx={{
                     textTransform: "none",
@@ -188,14 +176,10 @@ export default function CreatePost() {
                     py: 1.5,
                     fontWeight: 600,
                     boxShadow: 3,
-                    "&:hover": {
-                      boxShadow: 6,
-                    },
+                    "&:hover": { boxShadow: 6 },
                   }}
                 >
-                  {isSubmitting || createMutation.isPending
-                    ? "Saving..."
-                    : "Create Post"}
+                  {isDisabled ? "Saving..." : "Create Post"}
                 </Button>
               </Stack>
             </Stack>
@@ -203,7 +187,7 @@ export default function CreatePost() {
         </CardContent>
       </Card>
 
-      {/* Tips Card */}
+      {/* ---------------- TIPS ---------------- */}
       <Card
         sx={{
           mt: 3,
@@ -222,8 +206,8 @@ export default function CreatePost() {
             <br />
             • Content should be clear and easy to understand
             <br />
-            • Segment the content logically for easy reading
-            <br />• Check for spelling before posting
+            • Segment your ideas logically for readability
+            <br />• Proofread before publishing
           </Typography>
         </CardContent>
       </Card>
