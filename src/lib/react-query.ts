@@ -25,11 +25,11 @@ export const queryClient = new QueryClient({
     queries: {
       // ❗ Không refetch nếu data còn "fresh"
       refetchOnMount: false,
-      refetchOnWindowFocus: "always",
       refetchOnReconnect: "always",
       // ✅ Performance tuning
-      staleTime: 2 * 60 * 1000, // 2 phút
-      gcTime: 10 * 60 * 1000, // 10 phút
+      staleTime: 2 * 60 * 1000, // 2 phút: Fresh nhanh, sync thường
+      gcTime: 5 * 60 * 1000, // 5 phút: Cleanup tiết kiệm RAM
+      refetchOnWindowFocus: true, // Sync khi focus tab
 
       // ✅ Behavior tuning
       networkMode: "online",

@@ -13,11 +13,10 @@ import { useScrollProgress } from "../../hooks/useParallax";
 import ColorModeIconDropdown from "./ColorModeToggle";
 import MobileMenu from "./MobileMenu";
 import UserMenu from "./UserMenu";
+import { useMatchRoute, type Route } from "@/hooks/useMatchRoute";
 
-interface NavigationItem {
+interface NavigationItem extends Route {
   id: string;
-  label: string;
-  route: string;
   requiresAuth?: boolean;
 }
 
@@ -31,27 +30,43 @@ export default function Navbar() {
   const navigate = useNavigate();
   const scrollProgress = useScrollProgress();
 
+  // -------------------------------
   // Define navigation items
+  // -------------------------------
   const navigationItems: NavigationItem[] = [
     {
       id: "home",
       label: "Home",
       route: ROUTE_PAGES.HOME,
+      routePattern: [ROUTE_PAGES.HOME],
     },
     {
       id: "gallery",
       label: "Gallery",
       route: ROUTE_PAGES.GALLERY,
+      routePattern: [ROUTE_PAGES.GALLERY],
     },
     {
       id: "posts",
       label: "Posts",
       route: ROUTE_PAGES.POSTS.LIST,
+      routePattern: [
+        ROUTE_PAGES.POSTS.LIST,
+        ROUTE_PAGES.POSTS.DETAIL(":id"),
+        ROUTE_PAGES.POSTS.EDIT(":id"),
+      ],
       requiresAuth: true,
     },
   ];
 
-  // Define action items based on authentication status
+  // -------------------------------
+  // Find current active route
+  // -------------------------------
+  const activeRoute = useMatchRoute(navigationItems);
+
+  // -------------------------------
+  // Define action items (login/register/user)
+  // -------------------------------
   const actionItems: ActionItem[] = isAuthenticated
     ? [
         {
@@ -92,6 +107,9 @@ export default function Navbar() {
         },
       ];
 
+  // -------------------------------
+  // Render
+  // -------------------------------
   return (
     <Box>
       <AppBar
@@ -124,7 +142,7 @@ export default function Navbar() {
               HyperX
             </Typography>
 
-            {/* Desktop Navigation Menu - Centered (ẩn ở mobile) */}
+            {/* Desktop Navigation Menu */}
             <Box
               sx={{
                 display: { xs: "none", sm: "flex" },
@@ -135,17 +153,25 @@ export default function Navbar() {
               }}
             >
               {navigationItems.map((item) => {
-                // Skip items that require auth if user is not authenticated
-                if (item.requiresAuth && !isAuthenticated) {
-                  return null;
-                }
+                if (item.requiresAuth && !isAuthenticated) return null;
+
+                const isActive = activeRoute?.route === item.route;
 
                 return (
                   <Button
                     key={item.id}
                     color="inherit"
                     onClick={() => navigate(item.route)}
-                    sx={{ textTransform: "none" }}
+                    sx={{
+                      textTransform: "none",
+                      fontWeight: isActive ? 700 : 400,
+                      color: isActive ? "primary.main" : "text.primary",
+                      borderBottom: isActive
+                        ? "2px solid"
+                        : "2px solid transparent",
+                      borderColor: isActive ? "primary.main" : "transparent",
+                      borderRadius: 0,
+                    }}
                   >
                     {item.label}
                   </Button>
@@ -153,12 +179,11 @@ export default function Navbar() {
               })}
             </Box>
 
-            {/* Spacer for mobile - ensures right side stays right-aligned */}
+            {/* Spacer for mobile */}
             <Box sx={{ display: { xs: "flex", sm: "none" }, flexGrow: 1 }} />
 
-            {/* Desktop Right Side */}
+            {/* Right side (actions) */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              {/* Mobile Hamburger */}
               <MobileMenu />
 
               <Box
@@ -177,7 +202,7 @@ export default function Navbar() {
         </Container>
       </AppBar>
 
-      {/* Scroll Progress Indicator */}
+      {/* Scroll progress indicator */}
       <Box
         sx={{
           height: 3,

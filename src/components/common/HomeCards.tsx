@@ -66,9 +66,8 @@ export const PopularPostsCard: React.FC<PopularPostsCardProps> = ({
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           {posts.map((post, index) => (
-            <Box>
+            <Box key={post.id}>
               <Box
-                key={post.id}
                 component={motion.div}
                 whileHover={{
                   scale: 1.02,
