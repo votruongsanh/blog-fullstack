@@ -1,5 +1,6 @@
 import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
+import { useMatchRoute, type Route } from "@/hooks/useMatchRoute"; // ✅ import hook
 import {
   AddLinkOutlined,
   Article,
@@ -24,99 +25,76 @@ import {
 import React from "react";
 import { useNavigate } from "react-router";
 
-interface MenuItem {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  divider?: boolean;
-}
-
 export default function MobileMenu() {
   const { isAuthenticated, logout } = useAuth();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
-  const menuItems: MenuItem[] = isAuthenticated
+  // ----------------------------
+  // Define routes for hook
+  // ----------------------------
+  const menuRoutes: Route[] = isAuthenticated
     ? [
         {
-          id: "home",
           label: "Home",
           icon: <Home />,
-          onClick: () => {
-            navigate(ROUTE_PAGES.HOME);
-            setMobileOpen(false);
-          },
+          route: ROUTE_PAGES.HOME,
+          routePattern: [ROUTE_PAGES.HOME],
         },
         {
-          id: "gallery",
           label: "Gallery",
           icon: <Image />,
-          onClick: () => {
-            navigate(ROUTE_PAGES.GALLERY);
-            setMobileOpen(false);
-          },
+          route: ROUTE_PAGES.GALLERY,
+          routePattern: [ROUTE_PAGES.GALLERY],
         },
         {
-          id: "posts",
           label: "Posts",
           icon: <Article />,
-          onClick: () => {
-            navigate(ROUTE_PAGES.POSTS.LIST);
-            setMobileOpen(false);
-          },
+          route: ROUTE_PAGES.POSTS.LIST,
+          routePattern: [
+            ROUTE_PAGES.POSTS.LIST,
+            ROUTE_PAGES.POSTS.DETAIL(":id"),
+            ROUTE_PAGES.POSTS.EDIT(":id"),
+          ],
         },
         {
-          id: "my-posts",
           label: "My Posts",
           icon: <AddLinkOutlined />,
-          onClick: () => {
-            navigate(ROUTE_PAGES.POSTS.MY_POSTS);
-            setMobileOpen(false);
-          },
+          route: ROUTE_PAGES.POSTS.MY_POSTS,
+          routePattern: [ROUTE_PAGES.POSTS.MY_POSTS],
         },
         {
-          id: "divider",
-          label: "",
-          icon: <></>,
-          onClick: () => {},
-          divider: true,
-        },
-        {
-          id: "logout",
           label: "Logout",
           icon: <Logout />,
-          onClick: () => {
-            logout();
-            setMobileOpen(false);
-          },
+          route: "logout",
+          routePattern: [],
         },
       ]
     : [
         {
-          id: "login",
           label: "Login",
           icon: <Person />,
-          onClick: () => {
-            navigate(ROUTE_PAGES.AUTH.LOGIN);
-            setMobileOpen(false);
-          },
+          route: ROUTE_PAGES.AUTH.LOGIN,
+          routePattern: [ROUTE_PAGES.AUTH.LOGIN],
         },
         {
-          id: "register",
           label: "Register",
           icon: <Article />,
-          onClick: () => {
-            navigate(ROUTE_PAGES.AUTH.REGISTER);
-            setMobileOpen(false);
-          },
+          route: ROUTE_PAGES.AUTH.REGISTER,
+          routePattern: [ROUTE_PAGES.AUTH.REGISTER],
         },
       ];
 
+  // ----------------------------
+  // Detect active route
+  // ----------------------------
+  const matchedRoute = useMatchRoute(menuRoutes);
+
+  // ----------------------------
+  // Drawer content
+  // ----------------------------
   const drawer = (
     <Box sx={{ width: 250 }}>
       <Typography variant="h6" sx={{ p: 2, pb: 1 }}>
@@ -124,22 +102,53 @@ export default function MobileMenu() {
       </Typography>
       <Divider />
       <List>
-        {menuItems.map((item) =>
-          item.divider ? (
-            <Divider key={item.id} sx={{ my: 1 }} />
-          ) : (
-            <ListItem key={item.id} disablePadding>
-              <ListItemButton onClick={item.onClick}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.label} />
-              </ListItemButton>
-            </ListItem>
-          )
-        )}
+        {menuRoutes.map((item, index) => {
+          const isActive = matchedRoute?.route === item.route;
+
+          return (
+            <React.Fragment key={item.label}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    if (item.route === "logout") logout();
+                    else navigate(item.route);
+                    setMobileOpen(false);
+                  }}
+                  sx={{
+                    "&:hover": { bgcolor: "action.hover" },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: isActive ? "primary.main" : "inherit",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.label}
+                    primaryTypographyProps={{
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive ? "primary.main" : "text.primary",
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Optional divider after logout */}
+              {index === menuRoutes.length - 2 && isAuthenticated && (
+                <Divider sx={{ my: 1 }} />
+              )}
+            </React.Fragment>
+          );
+        })}
       </List>
     </Box>
   );
 
+  // ----------------------------
+  // Render
+  // ----------------------------
   return (
     <Box sx={{ display: { xs: "flex", sm: "none" } }}>
       <IconButton
@@ -150,12 +159,13 @@ export default function MobileMenu() {
       >
         <Menu />
       </IconButton>
+
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true, // better performance on mobile
         }}
         sx={{
           display: { xs: "block", sm: "none" },
