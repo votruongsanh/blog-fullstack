@@ -22,6 +22,7 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import * as yup from "yup";
+
 const schema = yup.object({
   title: yup
     .string()
@@ -150,7 +151,7 @@ export default function EditPost() {
         }}
       >
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <Stack spacing={3}>
               <Controller
                 name="title"
