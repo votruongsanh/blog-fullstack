@@ -14,7 +14,11 @@ const handleAuthError = (error: unknown) => {
   if (axios.isAxiosError(error) && error.response?.status === 401) {
     clearTokens();
     // Invalidate auth query để trigger refetch và set user = null
-    queryClient.invalidateQueries({ queryKey: ["auth"] });
+    queryClient.setQueryData(["auth"], null);
+    queryClient.invalidateQueries({
+      queryKey: ["auth"],
+      refetchType: "active",
+    });
   }
 };
 
