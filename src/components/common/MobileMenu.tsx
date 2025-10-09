@@ -127,9 +127,13 @@ export default function MobileMenu() {
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
-                    primaryTypographyProps={{
-                      fontWeight: isActive ? 600 : 400,
-                      color: isActive ? "primary.main" : "text.primary",
+                    slotProps={{
+                      primary: {
+                        sx: {
+                          fontWeight: isActive ? 600 : 400,
+                          color: isActive ? "primary.main" : "text.primary",
+                        },
+                      },
                     }}
                   />
                 </ListItemButton>
