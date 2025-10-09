@@ -8,12 +8,12 @@ import {
   LatestPostsCard,
   PopularPostsCard,
   StatisticsCard,
-} from "../../components/common/HomeCards";
-import { useParallax, useScrollProgress } from "../../hooks/useParallax";
+} from "../../components/home/HomeCards";
+import { useParallax } from "../../hooks/useParallax";
 
 const Home = () => {
   const parallaxOffset = useParallax({ speed: 0.3, direction: "up" });
-  const scrollProgress = useScrollProgress();
+  // const scrollProgress = useScrollProgress();
 
   // Mock data - in a real app, this would come from an API
   const popularPosts = [

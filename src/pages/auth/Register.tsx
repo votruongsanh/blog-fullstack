@@ -14,10 +14,9 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 const Register = () => {
-  const navigate = useNavigate();
   const { register: registerUser } = useAuth();
   const [error, setError] = useState<string>("");
 
