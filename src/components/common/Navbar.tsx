@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router";
+import { useScrollProgress } from "../../hooks/useParallax";
 import ColorModeIconDropdown from "./ColorModeToggle";
 import MobileMenu from "./MobileMenu";
 import UserMenu from "./UserMenu";
@@ -28,6 +29,7 @@ interface ActionItem {
 export default function Navbar() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const scrollProgress = useScrollProgress();
 
   // Define navigation items
   const navigationItems: NavigationItem[] = [
@@ -91,87 +93,101 @@ export default function Navbar() {
       ];
 
   return (
-    <AppBar
-      position="static"
-      elevation={0}
-      sx={{
-        bgcolor: "background.paper",
-        color: "text.primary",
-        borderBottom: 1,
-        borderColor: "divider",
-      }}
-    >
-      <Container maxWidth="lg">
-        <Toolbar disableGutters sx={{ gap: 2 }}>
-          {/* Logo */}
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{
-              cursor: "pointer",
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              color: "inherit",
-            }}
-            onClick={() => navigate(ROUTE_PAGES.HOME)}
-          >
-            HyperX
-          </Typography>
+    <Box>
+      <AppBar
+        position="static"
+        elevation={0}
+        sx={{
+          bgcolor: "background.paper",
+          color: "text.primary",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Toolbar disableGutters sx={{ gap: 2 }}>
+            {/* Logo */}
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                cursor: "pointer",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                color: "inherit",
+              }}
+              onClick={() => navigate(ROUTE_PAGES.HOME)}
+            >
+              HyperX
+            </Typography>
 
-          {/* Desktop Navigation Menu - Centered (ẩn ở mobile) */}
-          <Box
-            sx={{
-              display: { xs: "none", sm: "flex" },
-              alignItems: "center",
-              gap: 2,
-              flexGrow: 1,
-              justifyContent: "center",
-            }}
-          >
-            {navigationItems.map((item) => {
-              // Skip items that require auth if user is not authenticated
-              if (item.requiresAuth && !isAuthenticated) {
-                return null;
-              }
-
-              return (
-                <Button
-                  key={item.id}
-                  color="inherit"
-                  onClick={() => navigate(item.route)}
-                  sx={{ textTransform: "none" }}
-                >
-                  {item.label}
-                </Button>
-              );
-            })}
-          </Box>
-
-          {/* Spacer for mobile - ensures right side stays right-aligned */}
-          <Box sx={{ display: { xs: "flex", sm: "none" }, flexGrow: 1 }} />
-
-          {/* Desktop Right Side */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {/* Mobile Hamburger */}
-            <MobileMenu />
-
+            {/* Desktop Navigation Menu - Centered (ẩn ở mobile) */}
             <Box
               sx={{
                 display: { xs: "none", sm: "flex" },
                 alignItems: "center",
-                gap: 1,
+                gap: 2,
+                flexGrow: 1,
+                justifyContent: "center",
               }}
             >
-              {actionItems.map((item) => item.component)}
+              {navigationItems.map((item) => {
+                // Skip items that require auth if user is not authenticated
+                if (item.requiresAuth && !isAuthenticated) {
+                  return null;
+                }
+
+                return (
+                  <Button
+                    key={item.id}
+                    color="inherit"
+                    onClick={() => navigate(item.route)}
+                    sx={{ textTransform: "none" }}
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
             </Box>
 
-            <ColorModeIconDropdown />
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
+            {/* Spacer for mobile - ensures right side stays right-aligned */}
+            <Box sx={{ display: { xs: "flex", sm: "none" }, flexGrow: 1 }} />
+
+            {/* Desktop Right Side */}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {/* Mobile Hamburger */}
+              <MobileMenu />
+
+              <Box
+                sx={{
+                  display: { xs: "none", sm: "flex" },
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                {actionItems.map((item) => item.component)}
+              </Box>
+
+              <ColorModeIconDropdown />
+            </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+
+      {/* Scroll Progress Indicator */}
+      <Box
+        sx={{
+          height: 3,
+          background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+          transformOrigin: "left",
+          transform: `scaleX(${scrollProgress})`,
+          transition: "transform 0.1s ease-out",
+          opacity: 0.9,
+        }}
+      />
+    </Box>
   );
 }

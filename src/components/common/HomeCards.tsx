@@ -64,70 +64,72 @@ export const PopularPostsCard: React.FC<PopularPostsCardProps> = ({
     >
       <CardHeader title="Popular Posts" />
       <CardContent sx={{ flex: 1 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           {posts.map((post, index) => (
-            <Box
-              key={post.id}
-              component={motion.div}
-              whileHover={{
-                scale: 1.02,
-                transition: { duration: 0.2 },
-              }}
-              sx={{
-                p: 2,
-                borderRadius: 1,
-                cursor: "pointer",
-                transition: "all 0.3s ease-in-out",
-                "&:hover": {
-                  backgroundColor: "action.hover",
-                  transform: "translateY(-2px)",
-                  boxShadow: 2,
-                },
-              }}
-            >
+            <Box>
               <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    minWidth: "24px",
-                    color: "primary.main",
-                  }}
-                >
-                  {index + 1}
-                </Typography>
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
-                    {post.title}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    by {post.author}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box
+                key={post.id}
+                component={motion.div}
+                whileHover={{
+                  scale: 1.02,
+                  transition: { duration: 0.2 },
+                }}
                 sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  p: 2,
+                  borderRadius: 1,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease-in-out",
+                  "&:hover": {
+                    backgroundColor: "action.hover",
+                    transform: "translateY(-2px)",
+                    boxShadow: 2,
+                  },
                 }}
               >
-                <Chip
-                  label={post.category}
-                  size="small"
-                  variant="outlined"
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      minWidth: "24px",
+                      color: "primary.main",
+                    }}
+                  >
+                    {index + 1}
+                  </Typography>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                      {post.title}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      by {post.author}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box
                   sx={{
-                    fontSize: "0.75rem",
-                    "&:hover": {
-                      backgroundColor: "primary.main",
-                      color: "primary.contrastText",
-                    },
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
-                />
-                <Typography variant="caption" color="text.secondary">
-                  {post.views.toLocaleString()} views
-                </Typography>
+                >
+                  <Chip
+                    label={post.category}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      fontSize: "0.75rem",
+                      "&:hover": {
+                        backgroundColor: "primary.main",
+                        color: "primary.contrastText",
+                      },
+                    }}
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    {post.views.toLocaleString()} views
+                  </Typography>
+                </Box>
               </Box>
               {index < posts.length - 1 && <Divider sx={{ mt: 2 }} />}
             </Box>
@@ -153,7 +155,13 @@ export const LatestPostsCard: React.FC<LatestPostsCardProps> = ({ posts }) => {
     >
       <CardHeader title="Latest Posts" />
       <CardContent sx={{ flex: 1 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
           {posts.map((post) => (
             <Box
               key={post.id}

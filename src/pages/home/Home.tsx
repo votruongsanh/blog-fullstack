@@ -1,14 +1,14 @@
-import { Container, Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
-import {
-  PopularPostsCard,
-  LatestPostsCard,
-  StatisticsCard,
-} from "../../components/common/HomeCards";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import ArticleIcon from "@mui/icons-material/Article";
 import PeopleIcon from "@mui/icons-material/People";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import { Box, Container, Typography } from "@mui/material";
+import { motion } from "framer-motion";
+import {
+  LatestPostsCard,
+  PopularPostsCard,
+  StatisticsCard,
+} from "../../components/common/HomeCards";
 import { useParallax, useScrollProgress } from "../../hooks/useParallax";
 
 const Home = () => {
@@ -159,7 +159,7 @@ const Home = () => {
         />
 
         {/* Scroll Progress Indicator */}
-        <Box
+        {/* <Box
           sx={{
             position: "absolute",
             top: 0,
@@ -172,7 +172,7 @@ const Home = () => {
             transition: "transform 0.1s ease-out",
             zIndex: 2,
           }}
-        />
+        /> */}
 
         <Box
           component={motion.div}
@@ -227,9 +227,9 @@ const Home = () => {
         sx={{
           display: "grid",
           gridTemplateColumns: {
-            xs: "1fr",                    // Mobile: 1 column
-            md: "1fr 1fr",                // Tablet: 2 columns (768px-1199px)
-            lg: "1fr 1fr 1fr",            // Desktop: 3 columns (1200px+)
+            xs: "1fr", // Mobile: 1 column
+            md: "1fr 1fr", // Tablet: 2 columns (768px-1199px)
+            lg: "1fr 1fr 1fr", // Desktop: 3 columns (1200px+)
           },
           gap: 3,
         }}
