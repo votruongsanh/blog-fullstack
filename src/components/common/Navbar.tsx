@@ -1,5 +1,6 @@
 import { ROUTE_PAGES } from "@/config/routePage";
 import { useAuth } from "@/hooks/useAuth";
+import { useMatchRoute, type Route } from "@/hooks/useMatchRoute";
 import {
   AppBar,
   Box,
@@ -8,12 +9,12 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useScrollProgress } from "../../hooks/useParallax";
 import ColorModeIconDropdown from "./ColorModeToggle";
 import MobileMenu from "./MobileMenu";
 import UserMenu from "./UserMenu";
-import { useMatchRoute, type Route } from "@/hooks/useMatchRoute";
 
 interface NavigationItem extends Route {
   id: string;
@@ -29,6 +30,35 @@ export default function Navbar() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const scrollProgress = useScrollProgress();
+
+  // -------------------------------
+  // Scroll direction logic (ổn định)
+  // -------------------------------
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const ticking = useRef(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Chặn tick quá dày
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          const isScrollingDown =
+            currentScrollY > lastScrollY.current && currentScrollY > 80;
+
+          setVisible(!isScrollingDown);
+          lastScrollY.current = currentScrollY;
+          ticking.current = false;
+        });
+        ticking.current = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // -------------------------------
   // Define navigation items
@@ -59,21 +89,13 @@ export default function Navbar() {
     },
   ];
 
-  // -------------------------------
-  // Find current active route
-  // -------------------------------
   const activeRoute = useMatchRoute(navigationItems);
 
   // -------------------------------
-  // Define action items (login/register/user)
+  // Define action items
   // -------------------------------
   const actionItems: ActionItem[] = isAuthenticated
-    ? [
-        {
-          id: "user-menu",
-          component: <UserMenu key="user-menu" />,
-        },
-      ]
+    ? [{ id: "user-menu", component: <UserMenu key="user-menu" /> }]
     : [
         {
           id: "login",
@@ -113,17 +135,38 @@ export default function Navbar() {
   return (
     <Box>
       <AppBar
-        position="static"
+        position="fixed"
         elevation={0}
         sx={{
-          bgcolor: "background.paper",
+          top: 0,
+          left: 0,
+          right: 0,
           color: "text.primary",
-          borderBottom: 1,
-          borderColor: "divider",
+          zIndex: (theme) => theme.zIndex.drawer + 2,
+          // Dựa theo mức cuộn để thay đổi style
+          backgroundColor: `rgba(255, 255, 255, ${0.6 + scrollProgress * 0.4})`, // mờ → đậm dần
+          backdropFilter: `blur(${4 + scrollProgress * 8}px)`, // tăng độ blur khi cuộn
+          boxShadow:
+            scrollProgress > 0.05
+              ? "0 2px 12px rgba(0,0,0,0.1)"
+              : "0 0 0 rgba(0,0,0,0)",
+          transform: visible ? "translateY(0)" : "translateY(-100%)",
+          opacity: visible ? 1 : 0.9,
+          transition: "all 0.3s ease",
         }}
       >
         <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ gap: 2 }}>
+          <Toolbar
+            disableGutters
+            sx={{
+              gap: 2,
+              minHeight: {
+                xs: 56 - scrollProgress * 10,
+                sm: 64 - scrollProgress * 12,
+              },
+              transition: "min-height 0.3s ease",
+            }}
+          >
             {/* Logo */}
             <Typography
               variant="h6"
@@ -142,7 +185,7 @@ export default function Navbar() {
               HyperX
             </Typography>
 
-            {/* Desktop Navigation Menu */}
+            {/* Desktop navigation */}
             <Box
               sx={{
                 display: { xs: "none", sm: "flex" },
@@ -154,7 +197,6 @@ export default function Navbar() {
             >
               {navigationItems.map((item) => {
                 if (item.requiresAuth && !isAuthenticated) return null;
-
                 const isActive = activeRoute?.route === item.route;
 
                 return (
@@ -182,10 +224,9 @@ export default function Navbar() {
             {/* Spacer for mobile */}
             <Box sx={{ display: { xs: "flex", sm: "none" }, flexGrow: 1 }} />
 
-            {/* Right side (actions) */}
+            {/* Right actions */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <MobileMenu />
-
               <Box
                 sx={{
                   display: { xs: "none", sm: "flex" },
@@ -195,24 +236,35 @@ export default function Navbar() {
               >
                 {actionItems.map((item) => item.component)}
               </Box>
-
               <ColorModeIconDropdown />
             </Box>
           </Toolbar>
         </Container>
       </AppBar>
-
+      {/* Spacer tránh che nội dung */}
+      <Toolbar />
       {/* Scroll progress indicator */}
       <Box
         sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
           height: 3,
-          background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
-          transformOrigin: "left",
-          transform: `scaleX(${scrollProgress})`,
-          transition: "transform 0.1s ease-out",
-          opacity: 0.9,
+          width: "100%",
+          backgroundColor: "transparent",
+          zIndex: (theme) => theme.zIndex.drawer + 3,
         }}
-      />
+      >
+        <Box
+          sx={{
+            height: "100%",
+            width: `${scrollProgress * 100}%`,
+            background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+            transition: "width 0.1s ease-out",
+            transformOrigin: "left",
+          }}
+        />
+      </Box>
     </Box>
   );
 }
