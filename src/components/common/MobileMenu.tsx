@@ -60,12 +60,6 @@ export default function MobileMenu() {
           ],
         },
         {
-          label: "My Posts",
-          icon: <AddLinkOutlined />,
-          route: ROUTE_PAGES.POSTS.MY_POSTS,
-          routePattern: [ROUTE_PAGES.POSTS.MY_POSTS],
-        },
-        {
           label: "Logout",
           icon: <Logout />,
           route: "logout",
@@ -73,6 +67,18 @@ export default function MobileMenu() {
         },
       ]
     : [
+        {
+          label: "Home",
+          icon: <Home />,
+          route: ROUTE_PAGES.HOME,
+          routePattern: [ROUTE_PAGES.HOME],
+        },
+        {
+          label: "Gallery",
+          icon: <Image />,
+          route: ROUTE_PAGES.GALLERY,
+          routePattern: [ROUTE_PAGES.GALLERY],
+        },
         {
           label: "Login",
           icon: <Person />,
