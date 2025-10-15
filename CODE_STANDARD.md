@@ -66,7 +66,7 @@ src/
 ### Forms & Validation
 
 - **React Hook Form** for form state management and performance
-- **Yup** for schema validation
+- **Zod** for schema validation
 - **Hookform Resolvers** for validation resolver integration
 
 ### HTTP Client & API
@@ -513,7 +513,7 @@ export const usePosts = (page = 1, limit = 10) => {
 ### Forms & Validation
 
 - **React Hook Form**: Use for better performance and UX
-- **Yup Schemas**: Define centralized validation rules
+- **Zod Schemas**: Define centralized validation rules
 - **Error States**: Display errors in a user-friendly way
 - **Loading States**: Disable forms when submitting
 
@@ -547,25 +547,12 @@ export const usePosts = (page = 1, limit = 10) => {
 
 ### Development Workflow
 
-````bash
-# Generate API client from Swagger spec
-npm run generate:api
-
-# Install new dependencies
-npm install @mui/material @emotion/react @emotion/styled react-hook-form yup @hookform/resolvers dayjs framer-motion
-
-# Development
-npm run dev
-
-# Build
-npm run build
-
 ```bash
 # Generate API client from Swagger spec
 npm run generate:api
 
 # Install new dependencies
-npm install @mui/material @emotion/react @emotion/styled react-hook-form yup @hookform/resolvers dayjs framer-motion
+npm install @mui/material @emotion/react @emotion/styled react-hook-form zod @hookform/resolvers dayjs framer-motion
 
 # Development
 npm run dev
@@ -578,7 +565,7 @@ npm run lint
 
 # Preview production build
 npm run preview
-````
+```
 
 ---
 
