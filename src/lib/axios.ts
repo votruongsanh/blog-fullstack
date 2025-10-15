@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getAccessToken } from "./tokenService";
+import { Api, HttpClient } from "@/api/api";
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
@@ -22,3 +23,10 @@ axiosClient.interceptors.response.use(
 );
 
 export default axiosClient;
+
+export const httpClient = new HttpClient({
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+});
+
+// Tạo instance Api
+export const api = new Api(httpClient);
