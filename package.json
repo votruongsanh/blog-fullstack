@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:api": "curl http://localhost:3000/api/docs-json -o swagger.json && npx swagger-typescript-api generate --path ./swagger.json --output ./src/api --name api.ts --axios --unwrap-response-data --single-http-client --clean-output"
+    "generate:api": "curl http://localhost:3000/api/docs-json -o swagger.json && npx swagger-typescript-api generate --path ./swagger.json --output ./src/api --name api.ts --axios --unwrap-response-data --single-http-client --clean-output --modular"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

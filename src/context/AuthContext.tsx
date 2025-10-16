@@ -66,7 +66,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   // ---- Register ----
   const handleRegister = useCallback(
     async (data: RegisterRequest) => {
-      const res = await authService.register(data);
+      const { confirmPassword, ...registerData } = data;
+      const res = await authService.register(registerData);
       setAccessToken(res.accessToken);
       setUserLocalStorage(JSON.stringify(res.user));
 

@@ -6,7 +6,7 @@
 // import { API_ENDPOINTS } from "../config/api";
 // import axiosClient from "../lib/axios";
 
-import type { LoginDto } from "@/api/api";
+import type { LoginDto, RegisterDto } from "@/api/api";
 import { api } from "@/lib/axios";
 
 // export const authService = {
@@ -31,6 +31,10 @@ import { api } from "@/lib/axios";
 export const authService = {
   login: async (data: LoginDto) => {
     const response = await api.api.authControllerLogin(data);
+    return response;
+  },
+  register: async (data: RegisterDto) => {
+    const response = await api.api.authControllerRegister(data);
     return response;
   },
 };
